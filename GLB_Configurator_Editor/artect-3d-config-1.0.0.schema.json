@@ -1,0 +1,397 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "artect-3d-config-1.0.0.schema.json",
+  "title": "Artect 3D Config 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "formatVersion",
+    "configurator",
+    "model",
+    "viewer",
+    "groups"
+  ],
+  "properties": {
+    "format": {
+      "const": "artect-3d-config"
+    },
+    "formatVersion": {
+      "const": "1.0.0"
+    },
+    "configurator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "revision"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "file",
+        "bindingMode",
+        "meshCount",
+        "integrity"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bindingMode": {
+          "const": "node-path"
+        },
+        "meshCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "integrity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "modelHash"
+          ],
+          "properties": {
+            "algorithm": {
+              "const": "sha256"
+            },
+            "modelHash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      }
+    },
+    "viewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "camera",
+        "background",
+        "controls"
+      ],
+      "properties": {
+        "camera": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode"
+          ],
+          "properties": {
+            "mode": {
+              "const": "orbit"
+            }
+          }
+        },
+        "background": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "transparent"
+              ]
+            }
+          }
+        },
+        "controls": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rotate",
+            "zoom",
+            "pan"
+          ],
+          "properties": {
+            "rotate": {
+              "type": "boolean"
+            },
+            "zoom": {
+              "type": "boolean"
+            },
+            "pan": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "order",
+          "required",
+          "defaultOptionId",
+          "targets",
+          "options"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "defaultOptionId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "nodePath",
+                "meshName",
+                "materialSlots"
+              ],
+              "properties": {
+                "nodePath": {
+                  "type": "string",
+                  "pattern": "^/"
+                },
+                "meshName": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "materialSlots": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "name",
+                "order",
+                "appearance"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "order": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "appearance": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "type",
+                        "color",
+                        "roughness",
+                        "metalness"
+                      ],
+                      "properties": {
+                        "type": {
+                          "const": "color"
+                        },
+                        "color": {
+                          "type": "string",
+                          "pattern": "^#[0-9a-fA-F]{6}$"
+                        },
+                        "roughness": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "metalness": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "type",
+                        "texture",
+                        "roughness",
+                        "metalness",
+                        "uv"
+                      ],
+                      "properties": {
+                        "type": {
+                          "const": "texture"
+                        },
+                        "texture": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "file",
+                            "mimeType",
+                            "colorSpace"
+                          ],
+                          "properties": {
+                            "file": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "mimeType": {
+                              "enum": [
+                                "image/jpeg",
+                                "image/png",
+                                "image/webp"
+                              ]
+                            },
+                            "colorSpace": {
+                              "const": "srgb"
+                            }
+                          }
+                        },
+                        "roughness": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "metalness": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "uv": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "repeat",
+                            "offset",
+                            "rotation"
+                          ],
+                          "properties": {
+                            "repeat": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "minItems": 2,
+                              "maxItems": 2
+                            },
+                            "offset": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "minItems": 2,
+                              "maxItems": 2
+                            },
+                            "rotation": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file",
+          "mimeType",
+          "type"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "minLength": 1
+          },
+          "mimeType": {
+            "enum": [
+              "image/jpeg",
+              "image/png",
+              "image/webp"
+            ]
+          },
+          "type": {
+            "const": "texture"
+          }
+        }
+      }
+    }
+  }
+}

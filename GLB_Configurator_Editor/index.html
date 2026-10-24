@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ویرایشگر کانفیگوریتور GLB</title>
+<style>
+:root{--bg:#0c111b;--panel:#141c2a;--panel2:#192437;--line:#2a3850;--text:#edf3fb;--muted:#9eacc2;--blue:#6ca8ff;--blue2:#397fe5;--green:#58d6a2;--danger:#ff7884;--radius:14px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;font-size:14px}button,input,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:9px;padding:9px 12px;background:#202d42;color:var(--text);transition:.15s}button:hover{border-color:var(--blue);background:#263954}button.primary{background:var(--blue2);border-color:var(--blue2);color:white}button.danger{color:#ffabb1}button:disabled{opacity:.4;cursor:not-allowed}input,select{width:100%;background:#0f1725;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:9px;min-width:0}input[type=color]{padding:3px;height:38px;cursor:pointer}input[type=checkbox]{width:auto}label{display:block;color:var(--muted);font-size:12px;margin:0 0 6px}.app{min-height:100vh;display:grid;grid-template-rows:auto 1fr}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);background:#101725;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:11px}.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#71b5ff,#6f76f6);display:grid;place-items:center;color:#071426;font-size:20px;font-weight:bold}.brand h1{font-size:16px;margin:0 0 4px}.brand p{margin:0;color:var(--muted);font-size:12px}.top-actions{display:flex;gap:8px;flex-wrap:wrap}.layout{display:grid;grid-template-columns:minmax(290px,350px) minmax(350px,1fr) minmax(290px,350px);gap:12px;padding:12px;min-height:0}.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);min-height:0;overflow:hidden;display:flex;flex-direction:column}.panel-head{padding:14px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}.panel-head h2{font-size:14px;margin:0}.panel-body{padding:14px;overflow:auto;min-height:0}.hint{font-size:12px;line-height:1.8;color:var(--muted)}.section{margin-bottom:17px}.section-title{font-size:12px;font-weight:bold;color:#c6d4e9;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between}.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.field{margin-bottom:10px}.drop{border:1px dashed #526784;border-radius:12px;padding:18px;text-align:center;background:#111a29;color:var(--muted);line-height:1.8}.drop strong{color:var(--text);display:block;margin-bottom:4px}.drop.drag{border-color:var(--blue);background:#172844}.file-hidden{display:none}.viewport-wrap{position:relative;min-height:520px;flex:1;background:radial-gradient(ellipse at 50% 40%,#25354d 0,#121b2a 55%,#0b111b 100%)}#viewport{position:absolute;inset:0}#viewport canvas{display:block;width:100%;height:100%}.view-badge{position:absolute;top:12px;right:12px;padding:7px 10px;border:1px solid #536580;border-radius:8px;background:#101827cc;font-size:11px;color:#cbd8ea;pointer-events:none}.view-help{position:absolute;bottom:12px;right:12px;left:12px;text-align:center;color:#bdcbe0;font-size:11px;pointer-events:none;text-shadow:0 1px 3px #000}.view-footer{padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line)}.view-footer button{font-size:12px}.status{color:var(--green);font-size:12px}.mesh-list{display:flex;flex-direction:column;gap:5px;max-height:230px;overflow:auto}.mesh-item{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid var(--line);border-radius:8px;background:#111a28}.mesh-item.selected{border-color:var(--blue);background:#1b2c45}.mesh-item input{width:auto}.mesh-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;font-size:12px}.tiny{font-size:11px;color:var(--muted)}.group-card{border:1px solid var(--line);border-radius:11px;margin-bottom:9px;overflow:hidden}.group-card.active{border-color:var(--blue)}.group-top{display:flex;align-items:center;gap:8px;padding:10px;background:#182336}.group-top strong{flex:1;font-size:12px}.group-top button{padding:5px 7px;font-size:11px}.group-details{padding:10px}.option-list{display:flex;flex-direction:column;gap:7px;margin-top:8px}.option-card{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:7px;background:#111a28}.option-card.active{border-color:var(--blue);background:#1b2b42}.swatch{width:27px;height:27px;border-radius:7px;border:1px solid #ffffff55}.option-label{font-size:12px}.option-card button{padding:5px 7px;font-size:11px}.empty{padding:16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px;font-size:12px;line-height:1.8}.pill{font-size:10px;background:#233a58;color:#9dc5ff;border-radius:99px;padding:4px 7px}.editor-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.material-preview{height:42px;border-radius:8px;border:1px solid var(--line);margin-bottom:10px}.note{border-radius:9px;padding:10px;background:#1b2a40;color:#b8cce8;font-size:11px;line-height:1.8}.toast{position:fixed;bottom:20px;left:20px;z-index:20;padding:11px 15px;background:#1c2c42;border:1px solid #54749d;border-radius:10px;box-shadow:0 8px 30px #0008;max-width:360px;display:none}.toast.show{display:block}.config-preview{display:flex;flex-wrap:wrap;gap:7px}.config-chip{background:#203149;border:1px solid #344d6c;border-radius:7px;padding:6px 9px;font-size:11px}.small-btn{padding:6px 8px;font-size:11px}.footer-note{padding:10px 14px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.7}@media(max-width:1120px){.layout{grid-template-columns:300px minmax(320px,1fr)}.right-panel{grid-column:1/-1;min-height:300px}.right-panel .panel-body{display:grid;grid-template-columns:1fr 1fr;gap:14px}.right-panel .panel-head{grid-column:1/-1}}@media(max-width:760px){.layout{grid-template-columns:1fr}.viewport-panel{grid-row:1}.viewport-wrap{min-height:52vh}.right-panel{grid-column:auto}.right-panel .panel-body{display:block}.topbar{padding:12px}.top-actions button{font-size:12px;padding:8px}.layout{padding:8px;gap:8px}.panel-body{padding:11px}}
+
+/* Requested layout and interaction improvements */
+.layout{direction:ltr;grid-template-columns:minmax(0,1fr) minmax(350px,1.35fr) minmax(290px,350px)}
+.panel{direction:rtl}.settings-panel{grid-column:1;display:none}.settings-panel.open{display:flex}.viewport-panel{grid-column:2;grid-row:1}.right-panel{grid-column:3;grid-row:1}.layout.editor-open .viewport-panel{grid-column:2}.layout:not(.editor-open) .viewport-panel{grid-column:1/3}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;padding:0;margin:3px 0;background:transparent;border:0;cursor:ew-resize;touch-action:pan-y;direction:ltr;display:block;pointer-events:auto}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:99px;background:#344861;border:1px solid #526784}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;margin-top:-7px;border-radius:50%;background:#6ca8ff;border:2px solid #eaf3ff;box-shadow:0 0 0 3px #6ca8ff22}
+input[type=range]::-moz-range-track{height:6px;border-radius:99px;background:#344861;border:1px solid #526784}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:#6ca8ff;border:2px solid #eaf3ff;box-shadow:0 0 0 3px #6ca8ff22}
+ .mesh-drawer{position:absolute;z-index:8;top:12px;left:60px;width:min(300px,calc(100% - 76px));max-height:min(60%,500px);background:var(--panel);border:1px solid #536580;border-radius:12px;box-shadow:0 12px 35px #0008;display:none;flex-direction:column;direction:rtl;overflow:hidden}
+.mesh-drawer.open{display:flex}.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}.drawer-head h2{font-size:13px;margin:0}.drawer-body{padding:10px;overflow:auto;min-height:0}.hamburger-btn{position:absolute;top:12px;left:12px;z-index:9;width:42px;height:42px;padding:0;display:grid;place-items:center;background:#101827ef;border-color:#536580;font-size:22px;line-height:1}.editor-closed-note{font-size:12px;color:var(--muted);line-height:1.9}.editor-open-btn{margin-right:auto}
+.app{height:100vh;min-height:0;grid-template-rows:auto minmax(0,1fr)}.layout{min-height:0;overflow:hidden}.right-panel .panel-body{overflow-y:auto;overscroll-behavior:contain;min-height:0}.settings-panel .panel-body{overflow-y:auto;overscroll-behavior:contain}
+.selection-active{outline:2px solid #58d6a2;outline-offset:-2px}.selection-controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.selection-controls .primary{min-width:110px}.renderer-choices{position:absolute;left:12px;right:12px;bottom:12px;z-index:5;max-height:42%;overflow:auto;background:#0c1422ed;border:1px solid #536580;border-radius:12px;backdrop-filter:blur(10px);box-shadow:0 8px 24px #0006}.renderer-choices-head{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid #33445d}.renderer-choices-head strong{font-size:12px}.renderer-choices-body{padding:8px 10px;display:flex;flex-direction:column;gap:9px}.renderer-choices.collapsed .renderer-choices-body{display:none}.renderer-group-row{display:grid;grid-template-columns:95px minmax(0,1fr);align-items:center;gap:9px}.renderer-group-name{font-size:11px;color:#d7e4f7;overflow-wrap:anywhere}.renderer-options{display:flex;gap:7px;overflow-x:auto;padding:2px 2px 5px}.renderer-option{flex:0 0 auto;min-width:68px;max-width:100px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:5px 7px;border:1px solid #3a4b64;border-radius:8px;background:#172338;font-size:10px}.renderer-option.active{border-color:#72b5ff;box-shadow:0 0 0 1px #72b5ff;background:#233b59}.renderer-option .swatch{width:25px;height:25px}.viewport-wrap.selection-mode{cursor:crosshair}.view-help.selection-help{bottom:auto;top:12px;left:60px;right:auto;text-align:left;background:#101827d9;border-radius:7px;padding:7px 9px}
+@media(max-width:1120px){.layout{grid-template-columns:minmax(0,1fr) minmax(320px,1.2fr) minmax(270px,320px)}.right-panel{grid-column:3;grid-row:1;min-height:0}.right-panel .panel-body{display:block}.right-panel .panel-head{grid-column:auto}}
+@media(max-width:760px){.app{height:auto;min-height:100vh;grid-template-rows:auto auto}.layout{height:auto;min-height:0;overflow:visible;direction:rtl;grid-template-columns:1fr}.settings-panel.open,.viewport-panel,.right-panel{grid-column:1;grid-row:auto}.layout:not(.editor-open) .viewport-panel{grid-column:1}.viewport-panel{grid-row:1}.settings-panel.open{grid-row:2}.right-panel{grid-row:3;min-height:320px;max-height:65vh}.right-panel .panel-body{display:block;overflow-y:auto}.viewport-wrap{min-height:52vh}.mesh-drawer{max-height:55%;width:min(300px,calc(100% - 24px))}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div class="app">
+<header class="topbar"><div class="brand"><div class="logo">3D</div><div><h1>ویرایشگر کانفیگوریتور GLB</h1><p>تعریف گروه‌های مستقل رنگ و متریال برای مدل سه‌بعدی</p></div></div><div class="top-actions"><button id="loadBtn" class="primary">＋ بارگذاری مدل GLB</button><input id="fileInput" class="file-hidden" type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json"><button id="importConfigBtn">وارد کردن کانفیگوریشن ZIP</button><input id="configZipInput" class="file-hidden" type="file" accept=".zip,application/zip"><button id="saveConfigBtn">خروجی بسته تنظیمات ZIP</button><button id="exportGlbBtn">خروجی مدل GLB</button></div></header>
+<main class="layout" id="layout">
+<section class="panel settings-panel" id="settingsPanel"><div class="panel-head"><h2>تنظیمات گزینه</h2><button id="closeSettingsBtn" class="small-btn" title="بستن تنظیمات">✕ بستن</button></div><div class="panel-body"><div id="optionEditor" class="section"><div class="section-title">ویرایش گزینه انتخاب‌شده</div><div id="optionEditorBody" class="empty">برای باز کردن تنظیمات، روی «ویرایش» یک گزینه کلیک کن.</div></div><div class="editor-closed-note">این پنل فقط هنگام ویرایش گزینه یا تنظیم اجزای یک گروه باز می‌شود.</div></div></section><section class="panel viewport-panel"><div class="panel-head"><h2>نمایش زنده مدل</h2><span id="viewerStatus" class="status">در انتظار مدل</span></div><div class="viewport-wrap" id="viewportWrap"><button id="meshDrawerToggle" class="hamburger-btn" aria-label="باز و بسته کردن فهرست قطعات" title="فهرست قطعات مدل" aria-expanded="false">☰</button><div id="viewport"></div><div class="view-badge" id="viewName">GLB Preview</div><div class="view-help" id="viewHelp">چرخش: کشیدن ماوس · بزرگ‌نمایی: اسکرول</div><aside id="meshDrawer" class="mesh-drawer" aria-hidden="true"><div class="drawer-head"><h2>فهرست قطعات <span class="pill" id="meshCount">۰ جزء</span></h2><button id="closeMeshDrawerBtn" class="small-btn" title="بستن فهرست">✕</button></div><div class="drawer-body"><input id="meshSearch" placeholder="جست‌وجوی قطعه..." aria-label="جست‌وجوی قطعات" style="margin-bottom:8px"><div id="meshList" class="mesh-list"><div class="empty">ابتدا یک مدل بارگذاری کن.</div></div></div></aside><div id="rendererChoices" class="renderer-choices collapsed"><div class="renderer-choices-head"><strong>انتخاب رنگ و گزینه‌ها</strong><button id="toggleRendererChoices" class="small-btn" aria-expanded="false" title="باز و بسته کردن گزینه‌های نمایش">⌃</button></div><div id="rendererChoicesBody" class="renderer-choices-body"></div></div></div><div class="view-footer"><button id="startSelectionBtn" class="primary">انتخاب اجزا</button><button id="saveSelectionBtn" style="display:none">ذخیره اجزا</button><button id="resetCameraBtn">تنظیم دوربین</button><button id="toggleWireBtn">نمایش خطوط مش</button><button id="clearOverridesBtn">بازگردانی متریال‌ها</button></div><div class="footer-note">پیش‌نمایش زنده بر اساس انتخاب‌های فعلی ساخته می‌شود. خروجی GLB شامل وضعیت فعلی مدل و متریال‌های اعمال‌شده است؛ فایل اصلی شما تغییر نمی‌کند.</div></section>
+<section class="panel right-panel"><div class="panel-head"><h2>۲. گروه‌ها و گزینه‌ها</h2><span class="pill" id="groupCount">۰ گروه</span></div><div class="panel-body"><div class="section"><div class="section-title">ساخت گروه از اجزای ذخیره‌شده</div><div class="field"><label for="newGroupName">نام گروه</label><input id="newGroupName" placeholder="مثلاً رنگ پارچه"></div><button id="createGroupBtn" class="primary" style="width:100%">＋ ایجاد گروه از اجزای انتخاب‌شده</button><div class="hint" style="margin-top:7px">ابتدا «انتخاب اجزا» را بزن، قطعات را انتخاب و ذخیره کن؛ سپس گروه را بساز.</div></div><div class="section"><div class="section-title"><span>گروه‌های کانفیگوریشن</span><button id="addEmptyGroupBtn" class="small-btn">＋ گروه خالی</button></div><div id="groupsList"><div class="empty">هنوز گروهی ساخته نشده است.<br>برای نمونه «رنگ پارچه» و «رنگ پایه» بساز.</div></div></div></div></section>
+<div id="toast" class="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+
+const $=id=>document.getElementById(id); const state={root:null,scene:null,camera:null,renderer:null,controls:null,raycaster:new THREE.Raycaster(),pointer:new THREE.Vector2(),meshes:[],selected:new Set(),selectionMode:false,selectionBaseMaterials:new Map(),pendingTargets:[],targetEditGroup:null,groups:[],activeGroup:null,activeOption:null,originalMaterials:new Map(),textureCache:new Map(),wire:false,modelName:'model',modelSourceBytes:null,modelSourceExtension:null,modelSourceFileName:null,modelSourceHash:null,lastUrl:null};
+const loader=new GLTFLoader();
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),3400)}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+function openSettings(){ $('settingsPanel').classList.add('open'); $('settingsPanel').hidden=false; $('layout').classList.add('editor-open'); }
+function closeSettings(){ $('settingsPanel').classList.remove('open'); $('layout').classList.remove('editor-open'); }
+function openMeshDrawer(){ $('meshDrawer').classList.add('open'); $('meshDrawer').setAttribute('aria-hidden','false'); $('meshDrawerToggle').setAttribute('aria-expanded','true'); }
+function closeMeshDrawer(){ $('meshDrawer').classList.remove('open'); $('meshDrawer').setAttribute('aria-hidden','true'); $('meshDrawerToggle').setAttribute('aria-expanded','false'); }
+
+function init(){const host=$('viewport');state.scene=new THREE.Scene();state.scene.background=null;state.camera=new THREE.PerspectiveCamera(42,1,.01,1000);state.camera.position.set(3,2.3,4);state.renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});state.renderer.setPixelRatio(Math.min(devicePixelRatio,2));state.renderer.outputColorSpace=THREE.SRGBColorSpace;state.renderer.toneMapping=THREE.ACESFilmicToneMapping;state.renderer.toneMappingExposure=1.05;host.appendChild(state.renderer.domElement);state.controls=new OrbitControls(state.camera,state.renderer.domElement);state.controls.enableDamping=true;state.controls.target.set(0,0.8,0);state.scene.add(new THREE.HemisphereLight(0xffffff,0x536078,2.0));const key=new THREE.DirectionalLight(0xffffff,3.2);key.position.set(4,7,5);state.scene.add(key);const fill=new THREE.DirectionalLight(0x9bbcff,1.2);fill.position.set(-5,3,-4);state.scene.add(fill);const floor=new THREE.GridHelper(10,20,0x3c4d67,0x28364b);floor.position.y=-.001;floor.material.transparent=true;floor.material.opacity=.26;state.scene.add(floor);resize();window.addEventListener('resize',resize);state.renderer.domElement.addEventListener('pointerdown',onModelClick);animate()}
+function resize(){if(!state.renderer)return;const el=$('viewport');const w=Math.max(1,el.clientWidth),h=Math.max(1,el.clientHeight);state.renderer.setSize(w,h,false);state.camera.aspect=w/h;state.camera.updateProjectionMatrix()}
+function animate(){requestAnimationFrame(animate);state.controls?.update();state.renderer?.render(state.scene,state.camera)}
+function disposeObject(obj){obj.traverse(o=>{if(o.geometry)o.geometry.dispose()})}
+function resetModel(){if(state.root){state.scene.remove(state.root);disposeObject(state.root)}state.root=null;state.meshes=[];state.selected.clear();state.selectionMode=false;state.selectionBaseMaterials.clear();state.pendingTargets=[];state.targetEditGroup=null;closeMeshDrawer();$('viewportWrap').classList.remove('selection-mode');$('startSelectionBtn').style.display='inline-block';$('saveSelectionBtn').style.display='none';state.originalMaterials.clear();state.textureCache.forEach(p=>p.then(t=>t?.dispose()).catch(()=>{}));state.textureCache.clear();state.groups=[];state.activeGroup=null;state.activeOption=null;state.modelSourceBytes=null;state.modelSourceExtension=null;state.modelSourceFileName=null;state.modelSourceHash=null;renderAll()}
+function loadFile(file){if(!file)return;const ext=file.name.toLowerCase().split('.').pop();if(!['glb','gltf'].includes(ext)){toast('لطفاً فایل GLB یا glTF انتخاب کن.');return}if(ext==='gltf'){toast('برای مدل glTF دارای فایل‌های جانبی، بهتر است ابتدا آن را به GLB تبدیل کنی. بارگذاری glTF تکی ممکن است بافت‌ها را پیدا نکند.')}const reader=new FileReader();reader.onload=()=>{const data=reader.result;loader.parse(data,'',gltf=>{resetModel();state.modelSourceBytes=data.slice(0);state.modelSourceExtension=ext;state.modelSourceFileName=file.name;state.modelSourceHash=null;state.root=gltf.scene;state.modelName=file.name.replace(/\.(glb|gltf)$/i,'')||'model';state.scene.add(state.root);state.root.updateMatrixWorld(true);state.root.traverse(o=>{if(o.isMesh){o.userData.configuratorId='mesh_'+state.meshes.length;o.userData.originalName=o.name||`Mesh ${state.meshes.length+1}`;o.userData.nodePath=getNodePath(o);state.meshes.push(o);state.originalMaterials.set(o,o.material);if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(m=>{if(m&&!m.userData._configOriginal){m.userData._configOriginal=true;m.userData._originalColor=m.color?m.color.clone():null;m.userData._originalRoughness=m.roughness;m.userData._originalMetalness=m.metalness;}});}}});frameModel();$('viewerStatus').textContent=`${file.name} · ${state.meshes.length} جزء`; $('viewName').textContent=state.modelName;renderAll();toast('مدل بارگذاری شد. برای ساخت گروه، اجزای موردنظر را انتخاب کن.');},err=>{console.error(err);toast('بارگذاری مدل ناموفق بود. فایل GLB را بررسی کن.');});};reader.onerror=()=>toast('خواندن فایل ناموفق بود.');reader.readAsArrayBuffer(file)}
+function getNodePath(obj){const parts=[];let cur=obj;while(cur){const label=cur.name||(cur.isScene?'Scene':cur.type||'Node');parts.unshift(label);if(cur===state.root)break;cur=cur.parent;}return '/'+parts.join('/')}
+function formatBytes(n){if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';return (n/1048576).toFixed(2)+' MB'}
+function frameModel(){if(!state.root)return;const box=new THREE.Box3().setFromObject(state.root);if(box.isEmpty())return;const size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),max=Math.max(size.x,size.y,size.z)||1;state.controls.target.copy(center);state.camera.position.copy(center).add(new THREE.Vector3(max*1.55,max*1.0,max*1.75));state.camera.near=Math.max(max/1000,.001);state.camera.far=max*100;state.camera.updateProjectionMatrix();state.controls.minDistance=max*.25;state.controls.maxDistance=max*12;state.controls.update()}
+function onModelClick(ev){if(!state.root||!state.selectionMode)return;const rect=state.renderer.domElement.getBoundingClientRect();state.pointer.x=((ev.clientX-rect.left)/rect.width)*2-1;state.pointer.y=-((ev.clientY-rect.top)/rect.height)*2+1;state.raycaster.setFromCamera(state.pointer,state.camera);const hits=state.raycaster.intersectObject(state.root,true).filter(h=>h.object.isMesh);if(!hits.length)return;const mesh=hits[0].object;state.selected.has(mesh)?state.selected.delete(mesh):state.selected.add(mesh);renderMeshes();highlightSelection();toast(`${state.selected.has(mesh)?'انتخاب شد':'از انتخاب خارج شد'}: ${mesh.name||mesh.userData.originalName||'بدون نام'}`);}
+function highlightSelection(){if(!state.selectionMode)return;state.meshes.forEach(m=>{const base=state.selectionBaseMaterials.get(m);if(!base)return;const cloneMat=mat=>{const c=mat.clone();if(c.emissive)c.emissive.set(state.selected.has(m)?0x168cff:0x000000);if(c.emissiveIntensity!==undefined)c.emissiveIntensity=state.selected.has(m)?0.85:0;return c};m.material=Array.isArray(base)?base.map(cloneMat):cloneMat(base)});}
+function startSelection(targetGroupId=null){if(!state.root){toast('ابتدا یک مدل بارگذاری کن.');return}state.selectionMode=true;state.targetEditGroup=targetGroupId;state.selected.clear();if(targetGroupId){const g=state.groups.find(x=>x.id===targetGroupId);if(g)groupTargets(g).forEach(m=>state.selected.add(m))}state.selectionBaseMaterials.clear();state.meshes.forEach(m=>state.selectionBaseMaterials.set(m,m.material));$('viewportWrap').classList.add('selection-mode');$('startSelectionBtn').style.display='none';$('saveSelectionBtn').style.display='inline-block';$('viewHelp').classList.add('selection-help');$('viewHelp').textContent='حالت انتخاب اجزا فعال است · روی قطعات کلیک کن تا انتخاب/لغو شوند';$('meshDrawerToggle').title='فهرست قطعات در حالت انتخاب';renderMeshes();highlightSelection();openMeshDrawer();}
+function finishSelection(){if(!state.selectionMode)return;const chosen=[...state.selected];state.meshes.forEach(m=>{const base=state.selectionBaseMaterials.get(m);if(base)m.material=base});state.selectionBaseMaterials.clear();state.selectionMode=false;$('viewportWrap').classList.remove('selection-mode');$('startSelectionBtn').style.display='inline-block';$('saveSelectionBtn').style.display='none';$('viewHelp').classList.remove('selection-help');$('viewHelp').textContent='چرخش: کشیدن ماوس · بزرگ‌نمایی: اسکرول';state.selected.clear();renderMeshes();closeMeshDrawer();if(state.targetEditGroup){const g=state.groups.find(x=>x.id===state.targetEditGroup);if(g){g.targets=chosen.map(m=>m.userData.configuratorId);state.activeGroup=g.id;toast(`اجزای گروه «${g.name}» ذخیره شدند.`);renderGroups();openSettings();$('optionEditorBody').className='empty';$('optionEditorBody').textContent='اجزای گروه ذخیره شدند. برای تنظیم رنگ و متریال، روی «ویرایش» گزینه موردنظر کلیک کن.'}}else{state.pendingTargets=chosen.map(m=>m.userData.configuratorId);toast(`${chosen.length} جزء ذخیره شد. اکنون می‌توانی گروه کانفیگوریشن را بسازی.`);if(chosen.length){$('newGroupName').focus()}}renderAll();}
+function renderMeshes(){const search=$('meshSearch').value.trim().toLowerCase();const list=$('meshList');const shown=state.meshes.filter(m=>(m.name||m.userData.originalName).toLowerCase().includes(search));$('meshCount').textContent=`${state.meshes.length} جزء`;if(!shown.length){list.innerHTML='<div class="empty">جزئی پیدا نشد.</div>';return}list.innerHTML=shown.map((m)=>`<label class="mesh-item ${state.selected.has(m)?'selected':''}"><input type="checkbox" data-mesh="${m.userData.configuratorId}" ${state.selected.has(m)?'checked':''} ${state.selectionMode?'':'disabled'}><span class="mesh-name" title="${escapeHtml(m.name||m.userData.originalName)}">${escapeHtml(m.name||m.userData.originalName||'بدون نام')}</span></label>`).join('');list.querySelectorAll('[data-mesh]').forEach(inp=>inp.addEventListener('change',()=>{if(!state.selectionMode){inp.checked=state.selected.has(state.meshes.find(x=>x.userData.configuratorId===inp.dataset.mesh));return}const m=state.meshes.find(x=>x.userData.configuratorId===inp.dataset.mesh);if(!m)return;inp.checked?state.selected.add(m):state.selected.delete(m);renderMeshes();highlightSelection()}))}
+function groupTargets(g){return g.targets.map(id=>state.meshes.find(m=>m.userData.configuratorId===id)).filter(Boolean)}
+function getTextureForOption(opt){if(!opt?.textureFile)return Promise.resolve(null);if(state.textureCache.has(opt.textureFile))return state.textureCache.get(opt.textureFile);const promise=new Promise((resolve,reject)=>{const url=URL.createObjectURL(opt.textureFile);new THREE.TextureLoader().load(url,texture=>{URL.revokeObjectURL(url);texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=THREE.RepeatWrapping;texture.wrapT=THREE.RepeatWrapping;resolve(texture)},undefined,err=>{URL.revokeObjectURL(url);reject(err)})});state.textureCache.set(opt.textureFile,promise);return promise}
+async function applyAppearanceToMaterial(material,opt){const c=material.clone();if(c.color)c.color.set(opt.textureFile?'#ffffff':(opt.color||'#ffffff'));if('roughness'in c)c.roughness=Number(opt.roughness??.65);if('metalness'in c)c.metalness=Number(opt.metalness??0);if(opt.textureFile){try{c.map=await getTextureForOption(opt);c.map.wrapS=THREE.RepeatWrapping;c.map.wrapT=THREE.RepeatWrapping;c.map.repeat.set(1,1);c.map.offset.set(0,0);c.map.rotation=0;}catch(e){console.error(e);toast('بارگذاری بافت ناموفق بود.');c.map=null;}}else{c.map=null;}c.needsUpdate=true;return c}
+async function applyOption(g,opt,refreshEditor=true){if(!g||!opt)return;g.selectedOption=opt.id;const targets=groupTargets(g);for(const mesh of targets){const orig=state.originalMaterials.get(mesh);const apply=async m=>applyAppearanceToMaterial(m,opt);const updated=Array.isArray(orig)?await Promise.all(orig.map(apply)):await apply(orig);if(g.selectedOption!==opt.id)return;mesh.material=updated}if(g.selectedOption!==opt.id)return;renderGroups();renderRendererControls();renderSummary();highlightSelection();if(refreshEditor)renderOptionEditor()}
+function restoreMaterials(){state.meshes.forEach(m=>{if(state.originalMaterials.has(m))m.material=state.originalMaterials.get(m)});state.groups.forEach(g=>{g.selectedOption=null});renderAll();toast('متریال‌های اصلی بازگردانده شدند.')}
+function createGroup(name,targets=[]){const g={id:'group_'+Date.now()+'_'+Math.random().toString(16).slice(2,6),name:name||`گروه ${state.groups.length+1}`,targets:targets.map(m=>m.userData.configuratorId),options:[],selectedOption:null};state.groups.push(g);state.activeGroup=g.id;state.activeOption=null;renderAll();return g}
+function createOption(g){const n=g.options.length+1;const opt={id:'option_'+Date.now()+'_'+Math.random().toString(16).slice(2,5),name:`گزینه ${n}`,color:'#c8b69a',roughness:.72,metalness:0,textureFile:null,textureName:null};g.options.push(opt);state.activeGroup=g.id;state.activeOption=opt.id;applyOption(g,opt);toast('گزینه جدید ساخته شد؛ رنگ و جنس آن را تنظیم کن.')}
+function renderGroups(){const wrap=$('groupsList');$('groupCount').textContent=`${state.groups.length} گروه`;if(!state.groups.length){wrap.innerHTML='<div class="empty">هنوز گروهی ساخته نشده است.<br>برای نمونه «رنگ پارچه» و «رنگ پایه» بساز.</div>';return}wrap.innerHTML=state.groups.map(g=>`<div class="group-card ${state.activeGroup===g.id?'active':''}" data-group-card="${g.id}"><div class="group-top"><strong>${escapeHtml(g.name)}</strong><span class="pill">${g.targets.length} جزء</span><button data-group-edit="${g.id}">ویرایش</button><button class="danger" data-group-delete="${g.id}">حذف</button></div><div class="group-details"><div class="tiny">اجزا: ${escapeHtml(g.targets.map(id=>{const m=state.meshes.find(x=>x.userData.configuratorId===id);return m?(m.name||m.userData.originalName):id}).join('، ')||'هنوز انتخاب نشده')}</div><div class="option-list">${g.options.map(o=>`<div class="option-card ${state.activeGroup===g.id&&state.activeOption===o.id?'active':''}"><div class="swatch" style="background:${escapeHtml(o.color)}"></div><div class="option-label">${escapeHtml(o.name)}<div class="tiny">${escapeHtml(o.color)}</div></div><button data-option-edit="${g.id}|${o.id}">✎ ویرایش</button></div>`).join('')||'<div class="tiny">هنوز گزینه‌ای ندارد.</div>'}</div><div class="row" style="margin-top:8px"><button data-option-add="${g.id}" class="primary">＋ افزودن گزینه</button><button data-targets="${g.id}">تعیین اجزا</button></div></div></div>`).join('');wrap.querySelectorAll('[data-group-edit]').forEach(b=>b.onclick=()=>editGroup(b.dataset.groupEdit));wrap.querySelectorAll('[data-group-delete]').forEach(b=>b.onclick=()=>deleteGroup(b.dataset.groupDelete));wrap.querySelectorAll('[data-option-add]').forEach(b=>b.onclick=()=>{const g=state.groups.find(x=>x.id===b.dataset.optionAdd);if(g)createOption(g)});wrap.querySelectorAll('[data-option-edit]').forEach(b=>b.onclick=()=>{const [gid,oid]=b.dataset.optionEdit.split('|');state.activeGroup=gid;state.activeOption=oid;const g=state.groups.find(x=>x.id===gid),o=g?.options.find(x=>x.id===oid);if(g&&o){openSettings();applyOption(g,o)}});wrap.querySelectorAll('[data-targets]').forEach(b=>b.onclick=()=>{const g=state.groups.find(x=>x.id===b.dataset.targets);state.activeGroup=g.id;startSelection(g.id)});}
+function editGroup(id){const g=state.groups.find(x=>x.id===id);if(!g)return;const name=prompt('نام گروه:',g.name);if(name===null)return;g.name=name.trim()||g.name;state.activeGroup=id;renderAll()}
+function deleteGroup(id){const g=state.groups.find(x=>x.id===id);if(!g)return;if(!confirm(`گروه «${g.name}» حذف شود؟`))return;state.groups=state.groups.filter(x=>x.id!==id);if(state.activeGroup===id){state.activeGroup=null;state.activeOption=null}restoreMaterialsSilently();state.groups.forEach(gr=>{if(gr.selectedOption){const o=gr.options.find(x=>x.id===gr.selectedOption);if(o)applyOptionSilently(gr,o)}});renderAll()}
+function showTargetSave(g){startSelection(g.id)}
+function renderOptionEditor(){const body=$('optionEditorBody');const g=state.groups.find(x=>x.id===state.activeGroup);const o=g?.options.find(x=>x.id===state.activeOption);if(!g||!o){body.className='empty';body.innerHTML='برای ویرایش، روی دکمه «ویرایش» یک گزینه کلیک کن.';return}body.className='';body.innerHTML=`<div class="field"><label>نام گزینه</label><input id="optName" value="${escapeHtml(o.name)}"></div><div class="field"><label>رنگ پایه متریال</label><div class="row"><input id="optColor" type="color" value="${escapeHtml(o.color||'#c8b69a')}"><input id="optColorText" value="${escapeHtml(o.color||'#c8b69a')}" aria-label="کد رنگ"></div></div><div class="field"><label>بافت تصویری (اختیاری؛ JPG/PNG/WebP)</label><input id="optTexture" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"><div class="tiny" id="optTextureName">${o.textureFile?escapeHtml(o.textureFile.name):o.textureName?escapeHtml(o.textureName):'بافتی انتخاب نشده است.'}</div><button id="clearOptTextureBtn" type="button" ${o.textureFile||o.textureName?'':'disabled'}>حذف بافت و استفاده از رنگ ساده</button></div><div class="field"><label>زبری (Roughness): <span id="roughLabel">${Number(o.roughness??.72).toFixed(2)}</span></label><input id="optRough" type="range" min="0" max="1" step="0.01" value="${Number(o.roughness??.72)}"></div><div class="field"><label>فلزی‌بودن (Metalness): <span id="metalLabel">${Number(o.metalness??0).toFixed(2)}</span></label><input id="optMetal" type="range" min="0" max="1" step="0.01" value="${Number(o.metalness??0)}"></div><div class="note">اگر بافت انتخاب شود، سایت تصویر را به‌عنوان Base Color Texture اعمال می‌کند؛ در غیر این صورت رنگ ساده اعمال می‌شود. تنظیمات UV در نسخه ۱.۰.۰ با مقادیر پیش‌فرض repeat=[1,1]، offset=[0,0] و rotation=0 صادر می‌شوند.</div><div class="row" style="margin-top:10px"><button id="applyOptBtn" class="primary">اعمال روی مدل</button><button id="deleteOptBtn" class="danger">حذف گزینه</button></div>`;const update=()=>{o.name=$('optName').value;o.color=$('optColor').value;o.roughness=Number($('optRough').value);o.metalness=Number($('optMetal').value);$('optColorText').value=o.color;$('roughLabel').textContent=o.roughness.toFixed(2);$('metalLabel').textContent=o.metalness.toFixed(2);applyOption(g,o,false)};$('optColor').oninput=update;$('optRough').addEventListener('input',update);$('optMetal').addEventListener('input',update);$('optName').onchange=()=>{o.name=$('optName').value;renderGroups();renderRendererControls();renderSummary()};$('optColorText').onchange=()=>{if(/^#[0-9a-f]{6}$/i.test($('optColorText').value)){$('optColor').value=$('optColorText').value;update()}else toast('کد رنگ باید مانند #C8B69A باشد.')};$('optTexture').onchange=()=>{const file=$('optTexture').files?.[0];if(!file)return;if(!/^image\/(jpeg|png|webp)$/.test(file.type)){toast('فقط تصویر JPG، PNG یا WebP پشتیبانی می‌شود.');$('optTexture').value='';return}o.textureFile=file;o.textureName=null;$('optTextureName').textContent=file.name;$('clearOptTextureBtn').disabled=false;applyOption(g,o,false);renderGroups();renderRendererControls()};$('clearOptTextureBtn').onclick=()=>{o.textureFile=null;o.textureName=null;applyOption(g,o,false);renderOptionEditor();renderGroups();renderRendererControls()};$('applyOptBtn').onclick=()=>{update();toast('گزینه روی مدل اعمال شد.')};$('deleteOptBtn').onclick=()=>{if(!confirm('این گزینه حذف شود؟'))return;g.options=g.options.filter(x=>x.id!==o.id);if(g.selectedOption===o.id)g.selectedOption=null;state.activeOption=null;restoreMaterialsSilently();state.groups.forEach(gr=>{if(gr.selectedOption){const op=gr.options.find(x=>x.id===gr.selectedOption);if(op)applyOptionSilently(gr,op)}});renderAll()}}
+async function applyOptionSilently(g,opt){g.selectedOption=opt.id;const targets=groupTargets(g);for(const mesh of targets){const orig=state.originalMaterials.get(mesh);const apply=async m=>applyAppearanceToMaterial(m,opt);const updated=Array.isArray(orig)?await Promise.all(orig.map(apply)):await apply(orig);if(g.selectedOption!==opt.id)return;mesh.material=updated}}
+function restoreMaterialsSilently(){state.meshes.forEach(m=>{if(state.originalMaterials.has(m))m.material=state.originalMaterials.get(m)});state.groups.forEach(g=>g.selectedOption=null)}
+function renderRendererControls(){const wrap=$('rendererChoicesBody');if(!state.groups.length){wrap.innerHTML='<div class="empty">پس از ساخت گروه‌ها، گزینه‌ها در این قسمت ظاهر می‌شوند.</div>';return}wrap.innerHTML=state.groups.map(g=>`<div class="renderer-group-row"><div class="renderer-group-name">${escapeHtml(g.name)}</div><div class="renderer-options">${g.options.map(o=>`<button class="renderer-option ${g.selectedOption===o.id?'active':''}" data-render-option="${g.id}|${o.id}" title="${escapeHtml(o.name)}"><span class="swatch" style="background:${escapeHtml(o.color)}"></span><span>${escapeHtml(o.name)}</span></button>`).join('')||'<span class="tiny">گزینه‌ای وجود ندارد</span>'}</div></div>`).join('');wrap.querySelectorAll('[data-render-option]').forEach(btn=>btn.onclick=()=>{if(state.selectionMode)return;const [gid,oid]=btn.dataset.renderOption.split('|');const g=state.groups.find(x=>x.id===gid),o=g?.options.find(x=>x.id===oid);if(o){applyOption(g,o,false);renderRendererControls();renderSummary()}})}
+function renderSummary(){const wrap=$('selectedSummary');if(!wrap)return;const chips=[];state.groups.forEach(g=>{const o=g.options.find(x=>x.id===g.selectedOption);if(o)chips.push(`<span class="config-chip"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${escapeHtml(o.color)};margin-left:5px"></span>${escapeHtml(g.name)}: ${escapeHtml(o.name)}</span>`)});wrap.innerHTML=chips.join('')||'<span class="tiny">هنوز گزینه‌ای انتخاب نشده است.</span>'}
+function renderAll(){renderMeshes();renderGroups();renderOptionEditor();renderRendererControls();renderSummary()}
+function safeId(value){return String(value||'item').normalize('NFKD').replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase()||'item'}
+function exportTarget(mesh){const slots=Array.isArray(mesh.material)?mesh.material.map((_,i)=>i):[0];return {nodePath:mesh.userData.nodePath||getNodePath(mesh),meshName:mesh.name||mesh.userData.originalName||'Mesh',materialSlots:slots}}
+function decodeLegacyPath(path){
+  return String(path||'').split('/').map(part=>{try{return decodeURIComponent(part)}catch{return part}}).join('/');
+}
+function validateConfigShape(c){
+  const errors=[];
+  if(!c||typeof c!=='object'||Array.isArray(c))return ['فایل config.json دارای ساختار JSON object نیست.'];
+  if(c.format!=='artect-3d-config')errors.push('فرمت فایل پشتیبانی نمی‌شود؛ انتظار artect-3d-config می‌رفت.');
+  if(c.formatVersion!=='1.0.0')errors.push(`نسخه فرمت «${c.formatVersion||'نامشخص'}» پشتیبانی نمی‌شود.`);
+  if(!c.model||typeof c.model!=='object')errors.push('اطلاعات model در config.json وجود ندارد.');
+  if(!Array.isArray(c.groups)||!c.groups.length)errors.push('فهرست groups خالی یا نامعتبر است.');
+  const groupIds=new Set();
+  for(const [gi,g] of (Array.isArray(c.groups)?c.groups:[]).entries()){
+    const label=g?.name||`گروه ${gi+1}`;
+    if(!g||typeof g!=='object'){errors.push(`ساختار ${label} نامعتبر است.`);continue;}
+    if(!g.id||groupIds.has(g.id))errors.push(`شناسه گروه «${label}» خالی یا تکراری است.`);else groupIds.add(g.id);
+    if(!Array.isArray(g.targets)||!g.targets.length)errors.push(`گروه «${label}» قطعه هدف ندارد.`);
+    if(!Array.isArray(g.options)||!g.options.length)errors.push(`گروه «${label}» گزینه ندارد.`);
+    const optionIds=new Set();
+    for(const [oi,o] of (Array.isArray(g.options)?g.options:[]).entries()){
+      if(!o||!o.id||optionIds.has(o.id))errors.push(`شناسه گزینه در گروه «${label}» خالی یا تکراری است.`);else optionIds.add(o.id);
+      const a=o?.appearance;
+      if(!a||!['color','texture'].includes(a.type))errors.push(`نوع ظاهر گزینه «${o?.name||oi+1}» معتبر نیست.`);
+      if(a?.type==='color'&&!/^#[0-9a-f]{6}$/i.test(a.color||''))errors.push(`رنگ گزینه «${o?.name||oi+1}» معتبر نیست.`);
+      if(!Number.isFinite(Number(a?.roughness))||Number(a.roughness)<0||Number(a.roughness)>1)errors.push(`Roughness گزینه «${o?.name||oi+1}» باید بین ۰ و ۱ باشد.`);
+      if(!Number.isFinite(Number(a?.metalness))||Number(a.metalness)<0||Number(a.metalness)>1)errors.push(`Metalness گزینه «${o?.name||oi+1}» باید بین ۰ و ۱ باشد.`);
+      if(a?.type==='texture'&&(!a.texture?.file||!['image/jpeg','image/png','image/webp'].includes(a.texture?.mimeType)))errors.push(`مشخصات بافت گزینه «${o?.name||oi+1}» نامعتبر است.`);
+    }
+    if(g.defaultOptionId!=null&&!optionIds.has(g.defaultOptionId))errors.push(`گزینه پیش‌فرض گروه «${label}» در همان گروه وجود ندارد.`);
+    for(const t of (Array.isArray(g.targets)?g.targets:[])){
+      if(!t||typeof t.nodePath!=='string'||!t.nodePath.startsWith('/')||typeof t.meshName!=='string'||!Array.isArray(t.materialSlots)||!t.materialSlots.length||t.materialSlots.some(n=>!Number.isInteger(n)||n<0))errors.push(`اطلاعات یکی از قطعات هدف گروه «${label}» ناقص یا نامعتبر است.`);
+    }
+  }
+  return errors;
+}
+async function importConfigZip(file){
+  const fail=msg=>{toast(msg);return false};
+  if(!file)return false;
+  if(!state.root||!state.modelSourceBytes)return fail('ابتدا همان فایل GLB مربوط به این کانفیگوریشن را بارگذاری کن؛ بسته ZIP به‌تنهایی شامل مدل سه‌بعدی نیست.');
+  if(!window.JSZip)return fail('کتابخانه خواندن ZIP بارگذاری نشد؛ اتصال اینترنت را بررسی کن.');
+  let zip, config;
+  try{
+    zip=await window.JSZip.loadAsync(file,{checkCRC32:true});
+    const configEntry=zip.file('config.json');
+    if(!configEntry) return fail('فایل config.json در ریشه ZIP پیدا نشد.');
+    config=JSON.parse(await configEntry.async('string'));
+  }catch(err){console.error(err);return fail('فایل ZIP خراب است یا config.json قابل خواندن نیست.');}
+  const shapeErrors=validateConfigShape(config);
+  if(shapeErrors.length){alert('اعتبارسنجی کانفیگوریشن ناموفق بود؛ هیچ تغییری اعمال نشد:\n\n• '+[...new Set(shapeErrors)].join('\n• '));return false;}
+  if(config.model?.integrity?.algorithm==='sha256'&&config.model.integrity.modelHash){
+    if(!window.crypto?.subtle)return fail('بررسی SHA-256 در این مرورگر ممکن نیست. برنامه را از طریق start.bat و localhost اجرا کن.');
+    try{
+      const digest=await crypto.subtle.digest('SHA-256',state.modelSourceBytes);
+      const actual=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+      if(actual.toLowerCase()!==String(config.model.integrity.modelHash).toLowerCase())return fail('هش SHA-256 مدل با فایل کانفیگوریشن مطابقت ندارد. فایل GLB اصلی را بارگذاری کن.');
+    }catch(err){console.error(err);return fail('بررسی هش مدل ناموفق بود؛ کانفیگوریشن وارد نشد.');}
+  }
+  if(Number.isInteger(config.model?.meshCount)&&config.model.meshCount!==state.meshes.length)return fail(`تعداد قطعات مدل تطبیق ندارد؛ کانفیگوریشن: ${config.model.meshCount}، مدل بارگذاری‌شده: ${state.meshes.length}.`);
+  const pathMap=new Map();
+  for(const mesh of state.meshes){const path=mesh.userData.nodePath||getNodePath(mesh);if(pathMap.has(path))return fail(`مسیر قطعه در مدل یکتا نیست: ${path}`);pathMap.set(path,mesh);}
+  const importedGroups=[];const occupied=new Map();const textureFiles=[];
+  for(const g of config.groups){
+    const targets=[];
+    for(const target of g.targets){
+      // New exports use literal node names. Decode per segment only as a compatibility path for older ZIPs.
+      const rawPath=target.nodePath;
+      let mesh=pathMap.get(rawPath);
+      if(!mesh)mesh=pathMap.get(decodeLegacyPath(rawPath));
+      if(!mesh){alert(`اعتبارسنجی کانفیگوریشن ناموفق بود؛ هیچ تغییری اعمال نشد:\n\nقطعه با مسیر «${rawPath}» در گروه «${g.name}» پیدا نشد.`);return false;}
+      const actualName=mesh.name||mesh.userData.originalName||'';
+      if(actualName!==target.meshName)return fail(`نام قطعه در مسیر «${rawPath}» مطابقت ندارد؛ فایل کانفیگوریشن «${target.meshName}» و مدل «${actualName}» را دارد.`);
+      const materials=Array.isArray(mesh.material)?mesh.material:[mesh.material];
+      if(target.materialSlots.some(slot=>slot>=materials.length))return fail(`اسلات متریال نامعتبر برای قطعه «${target.meshName}» در گروه «${g.name}».`);
+      const allSlots=materials.map((_,i)=>i);if(target.materialSlots.length!==allSlots.length||allSlots.some(slot=>!target.materialSlots.includes(slot)))return fail(`گروه «${g.name}» برای قطعه «${target.meshName}» فقط بخشی از اسلات‌های متریال را هدف گرفته است؛ این نسخه ویرایشگر فقط از هدف‌گیری تمام اسلات‌های همان مش پشتیبانی می‌کند.`);
+      for(const slot of target.materialSlots){const key=`${rawPath}#${slot}`;if(occupied.has(key)&&occupied.get(key)!==g.id)return fail(`تداخل گروه‌های «${occupied.get(key)}» و «${g.name}» روی قطعه «${target.meshName}» و اسلات ${slot} وجود دارد.`);occupied.set(key,g.name);}
+      targets.push(mesh.userData.configuratorId);
+    }
+    const options=[];
+    for(const o of g.options){
+      const a=o.appearance;let textureFile=null,textureName=null;
+      if(a.type==='texture'){
+        const assetPath=String(a.texture.file||'');
+        if(assetPath.startsWith('/')||assetPath.split('/').includes('..')||assetPath.includes('\\'))return fail(`مسیر بافت گزینه «${o.name}» ناامن یا نامعتبر است.`);
+        const entry=zip.file(assetPath);
+        if(!entry)return fail(`فایل بافت «${assetPath}» برای گزینه «${o.name}» داخل ZIP وجود ندارد.`);
+        let blob;try{blob=await entry.async('blob')}catch(err){return fail(`خواندن بافت «${assetPath}» ناموفق بود.`)}
+        const mime=a.texture.mimeType;
+        if(blob.type&&blob.type!==mime)return fail(`نوع فایل بافت «${assetPath}» با MIME ثبت‌شده مطابقت ندارد.`);
+        const ext=mime==='image/jpeg'?'jpg':mime==='image/png'?'png':'webp';
+        textureName=assetPath.split('/').pop()||`texture.${ext}`;
+        textureFile=new File([blob],textureName,{type:mime});textureFiles.push(textureFile);
+      }
+      options.push({id:o.id,name:o.name||'گزینه',color:a.type==='color'?a.color:'#ffffff',roughness:Number(a.roughness),metalness:Number(a.metalness),textureFile,textureName});
+    }
+    importedGroups.push({id:g.id,name:g.name||'گروه',targets,options,selectedOption:g.defaultOptionId||options[0]?.id||null});
+  }
+  // Commit only after the entire archive, model targets, slots, and texture assets validate.
+  restoreMaterialsSilently();
+  state.textureCache.forEach(p=>p.then(t=>t?.dispose()).catch(()=>{}));state.textureCache.clear();
+  state.groups=importedGroups;state.activeGroup=importedGroups[0]?.id||null;state.activeOption=importedGroups[0]?.options[0]?.id||null;
+  renderAll();
+  for(const g of state.groups){const opt=g.options.find(o=>o.id===g.selectedOption);if(opt)await applyOptionSilently(g,opt);}
+  renderAll();
+  if(state.activeGroup&&state.activeOption)openSettings();else closeSettings();
+  toast(`کانفیگوریشن با موفقیت وارد شد: ${state.groups.length} گروه. اکنون می‌توانی آن را ویرایش کنی.`);
+  return true;
+}
+
+async function exportConfig(){
+  const fail=msg=>{toast(msg);return false};
+  if(!state.root)return fail('ابتدا یک مدل بارگذاری کن.');
+  if(!window.JSZip)return fail('کتابخانه ساخت ZIP بارگذاری نشد؛ اتصال اینترنت را بررسی کن.');
+  if(!state.groups.length)return fail('برای خروجی، ابتدا حداقل یک گروه کانفیگوریشن بساز.');
+  if(state.modelSourceExtension!=='glb'||!(state.modelSourceBytes instanceof ArrayBuffer))return fail('برای ثبت هش معتبر و اتصال دقیق به سایت، فایل GLB اصلی را بارگذاری کن. فایل glTF ابتدا باید به GLB تبدیل و سپس همان فایل GLB دوباره بارگذاری شود.');
+  if(!window.crypto?.subtle)return fail('محاسبه SHA-256 در این مرورگر در دسترس نیست. برنامه را از طریق start.bat و آدرس localhost اجرا کن.');
+  const issues=[];
+  const ids=new Set();
+  for(const g of state.groups){
+    if(!g.id||ids.has(g.id))issues.push(`شناسه گروه تکراری یا خالی است: ${g.name||'(بدون نام)'}`); else ids.add(g.id);
+    if(!g.targets.length)issues.push(`گروه «${g.name}» هیچ قطعه هدفی ندارد.`);
+    if(!g.options.length)issues.push(`گروه «${g.name}» هیچ گزینه‌ای ندارد.`);
+    const optionIds=new Set();
+    for(const o of g.options){
+      if(!o.id||optionIds.has(o.id))issues.push(`شناسه گزینه تکراری یا خالی در گروه «${g.name}»: ${o.name||'(بدون نام)'}`); else optionIds.add(o.id);
+      if(!Number.isFinite(Number(o.roughness))||Number(o.roughness)<0||Number(o.roughness)>1)issues.push(`Roughness گزینه «${o.name}» باید بین ۰ و ۱ باشد.`);
+      if(!Number.isFinite(Number(o.metalness))||Number(o.metalness)<0||Number(o.metalness)>1)issues.push(`Metalness گزینه «${o.name}» باید بین ۰ و ۱ باشد.`);
+      if(!o.textureFile&&!/^#[0-9a-f]{6}$/i.test(o.color||''))issues.push(`کد رنگ گزینه «${o.name}» معتبر نیست.`);
+      if(o.textureFile&&!['image/jpeg','image/png','image/webp'].includes(o.textureFile.type))issues.push(`فرمت بافت گزینه «${o.name}» پشتیبانی نمی‌شود.`);
+    }
+    if(g.selectedOption&&!optionIds.has(g.selectedOption))issues.push(`گزینه پیش‌فرض گروه «${g.name}» وجود ندارد.`);
+  }
+  // Every path in the entire loaded scene must be unambiguous, not merely unique among targets.
+  const allPaths=new Map();
+  for(const mesh of state.meshes){
+    const path=mesh.userData.nodePath||getNodePath(mesh);
+    if(allPaths.has(path)&&allPaths.get(path)!==mesh)issues.push(`مسیر قطعه یکتا نیست: ${path} (نام قطعات تکراری در مدل را اصلاح کن).`);
+    else allPaths.set(path,mesh);
+  }
+  const occupied=new Map();
+  const targetRows=[];
+  for(const g of state.groups){
+    for(const id of g.targets){
+      const mesh=state.meshes.find(m=>m.userData.configuratorId===id);
+      if(!mesh){issues.push(`یک قطعه هدف در گروه «${g.name}» دیگر در مدل وجود ندارد.`);continue;}
+      const path=mesh.userData.nodePath||getNodePath(mesh);
+      const mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];
+      const slots=mats.map((_,i)=>i);
+      if(!slots.length)issues.push(`قطعه «${mesh.name||mesh.userData.originalName}» متریال قابل هدف‌گیری ندارد.`);
+      if(!mesh.name&&!mesh.userData.originalName)issues.push(`قطعه در مسیر «${path}» نام معتبر ندارد.`);
+      targetRows.push({group:g,mesh,path,slots});
+      for(const slot of slots){
+        const key=`${path}#${slot}`;
+        if(occupied.has(key)&&occupied.get(key)!==g.id){const prior=state.groups.find(x=>x.id===occupied.get(key));issues.push(`تداخل گروه‌های «${prior?.name||'نامشخص'}» و «${g.name}» روی مسیر «${path}» و اسلات ${slot} وجود دارد.`);}
+        else occupied.set(key,g.id);
+      }
+    }
+  }
+  // Ensure a group's default is explicit and always points to a valid option.
+  for(const g of state.groups)if(!g.selectedOption&&g.options.length)g.selectedOption=g.options[0].id;
+  if(issues.length){alert('بسته کانفیگوریشن ساخته نشد؛ ابتدا خطاهای زیر را اصلاح کن:\n\n• '+[...new Set(issues)].join('\n• '));return false;}
+  let modelHash;
+  try{
+    const digest=await crypto.subtle.digest('SHA-256',state.modelSourceBytes);
+    modelHash=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+    state.modelSourceHash=modelHash;
+  }catch(err){console.error(err);return fail('محاسبه هش SHA-256 فایل مدل ناموفق بود؛ بسته ساخته نشد.');}
+  const zip=new window.JSZip();
+  const slug=safeId(state.modelName);
+  const assets=[];
+  const groups=state.groups.map((g,gi)=>{
+    const opts=g.options.map((o,oi)=>{
+      let appearance;
+      if(o.textureFile){
+        const extByMime={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
+        const normalizedExt=extByMime[o.textureFile.type];
+        const file=`textures/${safeId(g.id)}-${safeId(o.id)}.${normalizedExt}`;
+        zip.file(file,o.textureFile);
+        const mime=o.textureFile.type;
+        assets.push({file,mimeType:mime,type:'texture'});
+        appearance={type:'texture',texture:{file,mimeType:mime,colorSpace:'srgb'},roughness:Number(o.roughness??.72),metalness:Number(o.metalness??0),uv:{repeat:[1,1],offset:[0,0],rotation:0}};
+      }else{
+        appearance={type:'color',color:o.color||'#c8b69a',roughness:Number(o.roughness??.72),metalness:Number(o.metalness??0)};
+      }
+      return {id:o.id,name:o.name||`گزینه ${oi+1}`,order:oi+1,appearance};
+    });
+    const defaultOptionId=g.selectedOption&&g.options.some(o=>o.id===g.selectedOption)?g.selectedOption:(opts[0]?.id||null);
+    return {id:g.id,name:g.name||`گروه ${gi+1}`,order:gi+1,required:Boolean(opts.length),defaultOptionId,targets:targetRows.filter(r=>r.group.id===g.id).map(({mesh,path,slots})=>({nodePath:path,meshName:mesh.name||mesh.userData.originalName,materialSlots:slots})),options:opts};
+  });
+  const data={
+    format:'artect-3d-config',formatVersion:'1.0.0',
+    configurator:{id:`${slug}-config`,name:`${state.modelName} configurator`,revision:1},
+    model:{id:`${slug}-model`,file:state.modelSourceFileName,bindingMode:'node-path',meshCount:state.meshes.length,integrity:{algorithm:'sha256',modelHash}},
+    viewer:{camera:{mode:'orbit'},background:{type:'transparent'},controls:{rotate:true,zoom:true,pan:true}},groups,assets
+  };
+  zip.file('config.json',JSON.stringify(data,null,2));
+  zip.file('README.txt',`بسته تنظیمات سه‌بعدی Artect\nفرمت: artect-3d-config\nنسخه: 1.0.0\n\nفایل مدل مرجع: ${state.modelSourceFileName}\nالگوریتم تطبیق: SHA-256 دقیق فایل GLB اصلی\nSHA-256: ${modelHash}\n\nمهم: هنگام بارگذاری این بسته در سایت، باید دقیقاً همان فایل GLB با همین بایت‌ها انتخاب شود. تغییر یا خروجی‌گیری دوباره از مدل، هش را تغییر می‌دهد و بسته باید دوباره از روی فایل جدید ساخته شود.\n\nاین بسته شامل config.json و فایل‌های textures/ است؛ مدل GLB جداگانه در سایت ذخیره می‌شود. مسیر بافت‌ها نسبت به ریشه بسته ZIP است.\nدر خروجی‌های جدید، nodePath نام واقعی هر بخش مسیر را بدون کدگذاری URL ذخیره می‌کند. هنگام وارد کردن بسته‌های قدیمی، ویرایشگر برای سازگاری مسیرهای کدگذاری‌شده را نیز بررسی می‌کند.\n`);
+  try{
+    const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+    downloadBlob(blob,`${slug}-config.zip`);
+    toast('بسته معتبر artect-3d-config نسخه 1.0.0 با SHA-256 واقعی آماده شد.');
+    return true;
+  }catch(err){console.error(err);return fail('ساخت بسته ZIP ناموفق بود.');}
+}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)}
+function exportGlb(){if(!state.root){toast('ابتدا یک مدل بارگذاری کن.');return}const exporter=new GLTFExporter();$('exportGlbBtn').disabled=true;$('exportGlbBtn').textContent='در حال خروجی…';exporter.parse(state.root,result=>{const blob=result instanceof ArrayBuffer?new Blob([result],{type:'model/gltf-binary'}):new Blob([JSON.stringify(result)],{type:'model/gltf+json'});downloadBlob(blob,`${state.modelName}-configured.glb`);$('exportGlbBtn').disabled=false;$('exportGlbBtn').textContent='خروجی مدل GLB';toast('خروجی مدل آماده شد.')},err=>{console.error(err);$('exportGlbBtn').disabled=false;$('exportGlbBtn').textContent='خروجی مدل GLB';toast('خروجی GLB ناموفق بود؛ ممکن است مدل از ویژگی پشتیبانی‌نشده استفاده کند.')},{binary:true,onlyVisible:false,trs:false});}
+$('meshDrawerToggle').onclick=()=>{$('meshDrawer').classList.contains('open')?closeMeshDrawer():openMeshDrawer()};$('startSelectionBtn').onclick=()=>startSelection(null);$('saveSelectionBtn').onclick=finishSelection;$('toggleRendererChoices').onclick=()=>{const box=$('rendererChoices'),collapsed=box.classList.toggle('collapsed');$('toggleRendererChoices').textContent=collapsed?'⌃':'⌄';$('toggleRendererChoices').setAttribute('aria-expanded',String(!collapsed))};$('closeMeshDrawerBtn').onclick=closeMeshDrawer;$('closeSettingsBtn').onclick=closeSettings;$('loadBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=e=>{loadFile(e.target.files[0]);e.target.value=''};
+$('createGroupBtn').onclick=()=>{if(!state.root){toast('ابتدا مدل GLB را بارگذاری کن.');return}const ids=state.pendingTargets.length?state.pendingTargets:[...state.selected].map(m=>m.userData.configuratorId);if(!ids.length){toast('ابتدا «انتخاب اجزا» را بزن و سپس «ذخیره اجزا» را انجام بده.');return}const targets=ids.map(id=>state.meshes.find(m=>m.userData.configuratorId===id)).filter(Boolean);const g=createGroup($('newGroupName').value.trim(),targets);state.pendingTargets=[];$('newGroupName').value='';createOption(g)};$('addEmptyGroupBtn').onclick=()=>{if(!state.root){toast('ابتدا مدل GLB را بارگذاری کن.');return}const name=prompt('نام گروه جدید:','گروه جدید');if(name===null)return;const g=createGroup(name,[]);renderAll();startSelection(g.id);toast('اجزای گروه را انتخاب کن و «ذخیره اجزا» را بزن.')};$('meshSearch').oninput=renderMeshes;$('configZipInput').onchange=async()=>{const file=$('configZipInput').files?.[0];$('configZipInput').value='';if(file)await importConfigZip(file)};$('importConfigBtn').onclick=()=>{if(!state.root){toast('ابتدا فایل GLB مربوط به کانفیگوریشن را بارگذاری کن.');return}$('configZipInput').click()};$('saveConfigBtn').onclick=exportConfig;$('exportGlbBtn').onclick=exportGlb;$('resetCameraBtn').onclick=frameModel;$('toggleWireBtn').onclick=()=>{state.wire=!state.wire;state.meshes.forEach(m=>{m.material=Array.isArray(m.material)?m.material.map(x=>{const c=x.clone();c.wireframe=state.wire;return c}):m.material.clone();m.material.wireframe=state.wire});$('toggleWireBtn').textContent=state.wire?'خاموش‌کردن خطوط مش':'نمایش خطوط مش'};$('clearOverridesBtn').onclick=restoreMaterials;
+init();
+</script>
+</body></html>
