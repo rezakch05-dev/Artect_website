@@ -1,0 +1,114 @@
+{% extends 'layout.html' %}{% block content %}
+<main class="section container project-detail-page">
+  <section class="project-detail">
+    <div class="project-detail-box">
+      <div class="project-detail-media"><img src="{{project['image']|asset_url or '/images/placeholder-card.png'}}" alt=""></div>
+      <div class="project-detail-copy">
+        <div class="eyebrow">{{project['tag'] or 'نمونه‌کار'}}</div>
+        <h1>{{project['title']}}</h1>
+        <p class="lead">{{project['full_desc'] or project['short_desc']}}</p>
+      </div>
+    </div>
+  </section>
+
+  {% set imgs=detail_media|selectattr('type','equalto','image')|list %}
+  {% set vids=detail_media|selectattr('type','equalto','video')|list %}
+  {% set models=detail_media|selectattr('type','equalto','model')|list %}
+
+  {% if imgs or vids %}
+  <section class="project-media-layout">
+    {% if imgs %}<div class="project-media-box">
+      <h3>آلبوم تصاویر <button type="button" class="project-album-expand" data-expand-carousel="desktop-images" aria-label="بزرگنمایی آلبوم تصاویر">⛶</button></h3>
+      <div class="project-media-stage" data-carousel="desktop-images">
+        {% for x in imgs %}<img src="{{x.url}}" class="project-carousel-item {% if not loop.first %}is-hidden{% endif %}" alt="">{% endfor %}
+        {% if imgs|length>1 %}<button type="button" class="project-media-nav prev" data-carousel="desktop-images">‹</button><button type="button" class="project-media-nav next" data-carousel="desktop-images">›</button>{% endif %}
+      </div>
+      {% if imgs|length>1 %}<div class="project-media-counter" data-counter="desktop-images">1 / {{imgs|length}}</div>{% endif %}
+    </div>{% endif %}
+    {% if vids %}<div class="project-media-box">
+      <h3>آلبوم ویدئوها <button type="button" class="project-album-expand" data-expand-carousel="desktop-videos" aria-label="بزرگنمایی آلبوم ویدئوها">⛶</button></h3>
+      <div class="project-media-stage" data-carousel="desktop-videos">
+        {% for x in vids %}<video class="project-carousel-item {% if not loop.first %}is-hidden{% endif %}" controls preload="metadata" src="{{x.url}}"></video>{% endfor %}
+        {% if vids|length>1 %}<button type="button" class="project-media-nav prev" data-carousel="desktop-videos">‹</button><button type="button" class="project-media-nav next" data-carousel="desktop-videos">›</button>{% endif %}
+      </div>
+      {% if vids|length>1 %}<div class="project-media-counter" data-counter="desktop-videos">1 / {{vids|length}}</div>{% endif %}
+    </div>{% endif %}
+  </section>
+  {% endif %}
+
+  {% if models or qr %}
+  <section class="project-detail-desktop-bottom{% if not models and qr %} only-qr{% endif %}">
+    {% if models %}<div class="project-media-box models-box">
+      <button type="button" class="project-album-expand model-album-expand" data-expand-carousel="desktop-models" aria-label="بزرگنمایی آلبوم مدل‌های سه‌بعدی">⛶</button>
+      <div class="project-media-stage" data-carousel="desktop-models">
+        {% for x in models %}<div class="project-carousel-item {% if not loop.first %}is-hidden{% endif %}" style="width:100%;height:100%"><model-viewer autoplay src="{{x.url}}" camera-controls touch-action="pan-y" camera-target="auto auto auto" camera-orbit="auto auto auto" alt="مدل سه‌بعدی {{project['title']}}"></model-viewer></div>{% endfor %}
+        {% if models|length>1 %}<button type="button" class="project-media-nav prev" data-carousel="desktop-models">‹</button><button type="button" class="project-media-nav next" data-carousel="desktop-models">›</button>{% endif %}
+      </div>
+      {% if models|length>1 %}<div class="project-media-counter" data-counter="desktop-models">1 / {{models|length}}</div>{% endif %}
+    </div>{% endif %}
+    {% if qr %}<div class="qr-box-wrap"><div class="project-qr-box"><img class="qr" src="{{qr}}" alt="QR Code"><p class="project-qr-caption">برای تجربه بهتر با موبایل اسکن کنید</p></div></div>{% endif %}
+  </section>
+  {% endif %}
+
+  {% if imgs or vids %}
+  <section class="project-mobile-media">
+    <div class="project-media-box">
+      <h3>آلبوم تصاویر و ویدئوها <button type="button" class="project-album-expand" data-expand-carousel="mobile-media" aria-label="بزرگنمایی آلبوم تصاویر و ویدئوها">⛶</button></h3>
+      <div class="project-media-stage" data-carousel="mobile-media">
+        {% for x in imgs %}<div class="project-carousel-item {% if not loop.first %}is-hidden{% endif %}" style="width:100%;height:100%"><img src="{{x.url}}" alt=""></div>{% endfor %}
+        {% for x in vids %}<div class="project-carousel-item {% if imgs or not loop.first %}is-hidden{% endif %}" style="width:100%;height:100%"><video controls preload="metadata" src="{{x.url}}"></video></div>{% endfor %}
+        {% if (imgs|length + vids|length)>1 %}<button type="button" class="project-media-nav prev" data-carousel="mobile-media">‹</button><button type="button" class="project-media-nav next" data-carousel="mobile-media">›</button>{% endif %}
+      </div>
+      {% if (imgs|length + vids|length)>1 %}<div class="project-media-counter" data-counter="mobile-media">1 / {{imgs|length + vids|length}}</div>{% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if models %}
+  <section class="project-mobile-models">
+    <div class="project-media-box">
+      <button type="button" class="project-album-expand model-album-expand" data-expand-carousel="mobile-models" aria-label="بزرگنمایی آلبوم مدل‌های سه‌بعدی">⛶</button>
+      <div class="project-media-stage" data-carousel="mobile-models">
+        {% for x in models %}<div class="project-carousel-item {% if not loop.first %}is-hidden{% endif %}" style="width:100%;height:100%"><model-viewer autoplay src="{{x.url}}" camera-controls touch-action="pan-y" camera-target="auto auto auto" camera-orbit="auto auto auto" alt="مدل سه‌بعدی {{project['title']}}"></model-viewer></div>{% endfor %}
+        {% if models|length>1 %}<button type="button" class="project-media-nav prev" data-carousel="mobile-models">‹</button><button type="button" class="project-media-nav next" data-carousel="mobile-models">›</button>{% endif %}
+      </div>
+      {% if models|length>1 %}<div class="project-media-counter" data-counter="mobile-models">1 / {{models|length}}</div>{% endif %}
+      {% if project['link'] %}<a class="btn primary project-mobile-model-link" href="{{project['link']}}" target="_blank" rel="noopener">تجربه کنید</a>{% endif %}
+    </div>
+  </section>
+  {% endif %}
+</main>
+<div class="project-album-modal" id="projectAlbumModal" aria-hidden="true">
+  <div class="project-album-modal-card">
+    <button type="button" class="project-album-modal-close" aria-label="بستن">×</button>
+    <div class="project-album-modal-stage" id="projectAlbumModalStage"></div>
+    <button type="button" class="project-media-nav prev" id="projectAlbumModalPrev" aria-label="قبلی">‹</button>
+    <button type="button" class="project-media-nav next" id="projectAlbumModalNext" aria-label="بعدی">›</button>
+    <div class="project-media-counter" id="projectAlbumModalCounter"></div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const states=new Map();
+  document.querySelectorAll('[data-carousel]').forEach(stage=>{
+    const key=stage.dataset.carousel,items=[...stage.querySelectorAll('.project-carousel-item')];
+    if(!items.length)return;
+    const state={stage,items,index:0};states.set(key,state);
+    const render=()=>{state.items.forEach((x,j)=>x.classList.toggle('is-hidden',j!==state.index));const c=document.querySelector('[data-counter="'+key+'"]');if(c)c.textContent=(state.index+1)+' / '+state.items.length;};
+    state.show=n=>{state.index=(n+items.length)%items.length;render();};
+    stage.querySelector('.prev')?.addEventListener('click',()=>state.show(state.index-1));
+    stage.querySelector('.next')?.addEventListener('click',()=>state.show(state.index+1));
+    render();
+    stage.querySelectorAll('model-viewer').forEach(viewer=>{viewer.addEventListener('load',()=>{try{viewer.updateFraming?.();}catch(_){}});});
+  });
+  const modal=document.getElementById('projectAlbumModal'),modalStage=document.getElementById('projectAlbumModalStage'),modalCounter=document.getElementById('projectAlbumModalCounter'),modalPrev=document.getElementById('projectAlbumModalPrev'),modalNext=document.getElementById('projectAlbumModalNext');
+  let active=null;
+  const renderModal=()=>{if(!active)return;modalStage.innerHTML='';const clone=active.items[active.index].cloneNode(true);clone.classList.remove('is-hidden');modalStage.appendChild(clone);clone.querySelectorAll?.('model-viewer').forEach(viewer=>{viewer.addEventListener('load',()=>{try{viewer.updateFraming?.();}catch(_){}});});modalCounter.textContent=(active.index+1)+' / '+active.items.length;const multi=active.items.length>1;modalPrev.hidden=!multi;modalNext.hidden=!multi;};
+  document.querySelectorAll('[data-expand-carousel]').forEach(btn=>btn.addEventListener('click',()=>{active=states.get(btn.dataset.expandCarousel);if(!active)return;renderModal();modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('project-album-modal-open');}));
+  modalPrev.addEventListener('click',()=>{if(active){active.show(active.index-1);renderModal();}});modalNext.addEventListener('click',()=>{if(active){active.show(active.index+1);renderModal();}});
+  const close=()=>{modal.classList.remove('open');modal.setAttribute('aria-hidden','true');modalStage.innerHTML='';active=null;document.body.classList.remove('project-album-modal-open');};
+  modal.querySelector('.project-album-modal-close').addEventListener('click',close);modal.addEventListener('click',e=>{if(e.target===modal)close();});document.addEventListener('keydown',e=>{if(!modal.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft'&&active){active.show(active.index+1);renderModal();}if(e.key==='ArrowRight'&&active){active.show(active.index-1);renderModal();}});
+});
+</script>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+{% endblock %}

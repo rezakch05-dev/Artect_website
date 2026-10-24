@@ -1,0 +1,434 @@
+{% extends 'layout.html' %}{% block content %}
+{% set bykey={} %}{% for s in sections %}{% set _=bykey.update({s['section_key']:s}) %}{% endfor %}
+<main class="page-shell" data-page-slug="{{page_data['slug']}}" {% if page_kind=='artect' %}data-section-ids="{{ sections|map(attribute='id')|join(',') }}" data-section-orders="{{ sections|map(attribute='sort_order')|join(',') }}"{% endif %}>
+{% macro edit(s) %}{% if admin_preview and s %}<button class="preview-edit" onclick="parent.postMessage({type:'edit-section',id:{{s['id']}}},'*');event.stopPropagation()">ویرایش این بخش</button>{% endif %}{% endmacro %}
+{% macro image(name, cls='section-image') %}{% if name and name.startswith('model:') %}{% set ma=model_asset(name) %}{% if ma %}<div class="{{cls}} page-model-frame" data-model-asset="{{ma.filename}}" {% if ma.background_url %}style="--model-bg-url:url('{{ma.background_url}}');{% if ma.background_width and ma.background_height %}--model-bg-ratio:{{ma.background_width}}/{{ma.background_height}};{% endif %}"{% endif %}><model-viewer class="page-model-viewer" autoplay src="{{ma.url}}" camera-controls disable-pan disable-zoom auto-rotate auto-rotate-delay="0" rotation-per-second="12deg" camera-orbit="auto auto auto" alt="مدل سه‌بعدی"></model-viewer><button type="button" class="page-model-expand" onclick="openPageModel(this)" aria-label="نمایش بزرگ مدل سه‌بعدی">⛶</button></div>{% else %}<img class="{{cls}}" src="/images/placeholder-card.png" alt="">{% endif %}{% else %}<img class="{{cls}}" src="{{name|asset_url or '/images/placeholder-card.png'}}" alt="">{% endif %}{% endmacro %}
+{% if page_kind in ['home','artect','mr-ar'] %}
+{% set h=bykey.get('hero') %}<section class="container hero product-hero" data-section-id="{{h['id']}}">{{edit(h)}}<div class="hero-copy"><div class="eyebrow">{{'ARTECT' if page_kind!='mr-ar' else 'Mr.AR'}}</div><h1>{{h['title']|render_rich}}</h1><p class="lead">{{h['body']|render_rich}}</p><div class="actions"><a class="btn primary" href="/contact">درخواست Demo</a><a class="btn ghost" href="#projects">{{'تجربه Artect' if page_kind=='artect' else ('تجربه Mr.AR' if page_kind=='mr-ar' else 'معرفی Artect')}}</a></div></div>{{image(h['image'],'hero-img')}}</section>
+{% if bykey.get('summary') %}{% set s=bykey['summary'] %}<section class="section container split-summary" data-section-id="{{s['id']}}">{{edit(s)}}{{image(s['image'],'summary-img')}}<div><h2>{{s['title']|render_rich}}</h2><p class="lead">{{s['body']|render_rich}}</p></div></section>{% endif %}
+{% if page_kind=='artect' %}
+{% set annotation_section=bykey.get('artect-annotation-showcase') %}
+{% if annotation_section and (artect_annotation_cards or admin_preview) %}
+<section class="section container artect-annotation-section" data-section-id="{{annotation_section['id']}}" data-section-key="artect-annotation-showcase" aria-label="مدل‌های سه‌بعدی تعاملی با Annotation">
+  {% if admin_preview %}<button type="button" class="preview-edit artect-annotation-edit" onclick="parent.postMessage({type:'edit-artect-annotations'},'*');event.stopPropagation()">مدیریت کارت‌های Annotation</button>{% endif %}
+  {% if artect_annotation_cards %}
+  <div class="artect-ann-carousel" id="artectAnnotationCarousel" data-card-count="{{artect_annotation_cards|length}}" data-viewer-src="{{url_for('static',filename='artect_annotation_viewer.html')}}?embed=1">
+    <button type="button" class="artect-ann-arrow artect-ann-prev" aria-label="کارت قبلی">‹</button>
+    <div class="artect-ann-track">
+      {% for card in artect_annotation_cards %}
+      <article class="artect-ann-card {% if loop.first %}is-active{% endif %}" data-card-index="{{loop.index0}}" data-card-id="{{card['id']}}" data-card-title="{{card['title']}}" data-model-url="{{url_for('serve_model',filename=card['model_file'])}}" data-annotations='{{card["annotations_json"]|e}}'>
+        <div class="artect-ann-viewer-wrap">
+          <iframe class="artect-ann-viewer-frame" title="رندرر سه‌بعدی تعاملی Artect" data-renderer-src="{{url_for('static',filename='artect_annotation_viewer.html')}}?embed=1" loading="eager" allow="fullscreen" referrerpolicy="same-origin"></iframe>
+          <button type="button" class="artect-ann-fullscreen-toggle" aria-label="نمایش تمام‌صفحه مدل و Annotationها" title="نمایش تمام‌صفحه">⛶</button>
+          <button type="button" class="artect-ann-menu-toggle" aria-label="نمایش فهرست Annotationها" aria-expanded="true" title="Annotationها"><span></span><span></span><span></span></button>
+          <div class="artect-ann-menu"><div class="artect-ann-menu-list"></div><div class="artect-ann-selected-description" hidden></div></div>
+        </div>
+        <div class="artect-ann-mobile-tray"><div class="artect-ann-mobile-list"></div></div>
+      </article>
+      {% endfor %}
+    </div>
+    {% if artect_annotation_cards|length > 1 %}<button type="button" class="artect-ann-arrow artect-ann-next" aria-label="کارت بعدی">›</button>{% endif %}
+  </div>
+  {% if artect_annotation_cards|length > 1 %}<div class="artect-ann-dots" aria-label="انتخاب مدل">{% for card in artect_annotation_cards %}<button type="button" class="{% if loop.first %}is-active{% endif %}" data-artect-ann-dot="{{loop.index0}}" aria-label="نمایش مدل {{loop.index}}"></button>{% endfor %}</div>{% endif %}
+  {% elif admin_preview %}<div class="artect-ann-empty"></div>{% endif %}
+</section>
+{% endif %}
+{% endif %}
+{% if page_kind=='mr-ar' %}
+{% set motion_section=bykey.get('mr-ar-animations') %}
+{% if mr_ar_animation_cards or admin_preview %}
+<section class="mrar-motion-section" data-section-key="mr-ar-animations" data-section-id="{{motion_section['id'] if motion_section else 0}}" aria-label="مدل‌های سه‌بعدی تعاملی">
+  {% if admin_preview %}<button type="button" class="preview-edit mrar-motion-edit" onclick="parent.postMessage({type:'edit-mrar-animations'},'*');event.stopPropagation()">مدیریت کارت‌های رندرر</button>{% endif %}
+  {% if mr_ar_animation_cards %}
+  <div class="mrar-motion-carousel" id="mrarMotionCarousel" data-card-count="{{mr_ar_animation_cards|length}}">
+    <button type="button" class="mrar-motion-arrow mrar-motion-prev" aria-label="کارت قبلی">‹</button>
+    <div class="mrar-motion-track">
+      {% for card in mr_ar_animation_cards %}
+      <article class="mrar-motion-card" data-card-index="{{loop.index0}}" data-card-id="{{card['id']}}" data-model-url="{{url_for('serve_model',filename=card['model_file'])}}" data-animation-settings='{{(card['extra_json'] or '{}')|e}}'>
+        <div class="mrar-motion-viewer-wrap">
+          <model-viewer class="mrar-motion-viewer" src="{{url_for('serve_model',filename=card['model_file'])}}" camera-controls disable-pan auto-rotate rotation-per-second="10deg" camera-orbit="auto auto auto" shadow-intensity="0.8" alt="مدل سه‌بعدی تعاملی"></model-viewer>
+          <button type="button" class="mrar-model-expand" onclick="openPageModel(this)" aria-label="نمایش بزرگ مدل سه‌بعدی" title="بزرگ‌نمایی مدل">⛶</button>
+          <button type="button" class="mrar-animation-menu-toggle" aria-label="نمایش فهرست انیمیشن‌ها" aria-expanded="true" title="انیمیشن‌ها"><span></span><span></span><span></span></button>
+          <div class="mrar-animation-menu"><div class="mrar-animation-menu-list"></div></div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    <button type="button" class="mrar-motion-arrow mrar-motion-next" aria-label="کارت بعدی">›</button>
+  </div>
+  <div class="mrar-mobile-animation-tray" id="mrarMobileAnimationTray" aria-label="انیمیشن‌های مدل"></div>
+  <div class="mrar-motion-dots" id="mrarMotionDots" aria-label="انتخاب کارت">
+    {% for card in mr_ar_animation_cards %}<button type="button" class="mrar-motion-dot{% if loop.first %} is-active{% endif %}" data-dot-index="{{loop.index0}}" aria-label="نمایش کارت {{loop.index}}" aria-current="{% if loop.first %}true{% else %}false{% endif %}"></button>{% endfor %}
+  </div>
+  {% elif admin_preview %}<div class="mrar-motion-empty"></div>{% endif %}
+</section>
+{% endif %}
+{% endif %}
+{% if page_kind=='home' %}
+{% set s=bykey.get('home-how') %}<section class="section container home-paired"><div class="how-panel" data-section-id="{{s['id']}}">{{edit(s)}}<h2>{{s['title']|render_rich}}</h2><p class="muted">{{s['body']|render_rich}}</p><div class="chain vertical">{% for c in cards if c['card_type']=='process_home' %}<div class="chain-item" data-card-id="{{c['id']}}"><div class="icon-placeholder">{{image(c['icon'],'icon-clean')}}</div><p>{{c['short_desc']|render_rich}}</p>{% if not loop.last %}<span class="arrow">↓</span>{% endif %}</div>{% endfor %}</div></div>
+{% set ss=bykey.get('home-steps') %}<div class="steps-panel" data-section-id="{{ss['id']}}">{{edit(ss)}}<h2>{{ss['title']|render_rich}}</h2><p class="muted">{{ss['body']|render_rich}}</p><div class="number-cards">{% for c in cards if c['card_type']=='home_step' %}<article data-card-id="{{c['id']}}"><b>{{loop.index}}</b><h3>{{c['title']|render_rich}}</h3><p>{{c['short_desc']|render_rich}}</p></article>{% else %}{% for x in ['دیدن','بررسی','تصمیم'] %}<article><b>{{loop.index}}</b><h3>{{x}}</h3><p>یک قدم روشن برای رسیدن به نتیجه.</p></article>{% endfor %}{% endfor %}</div></div></section>
+{% set s=bykey.get('home-solutions') %}<section class="section container" data-section-id="{{s['id']}}">{{edit(s)}}<div class="section-head"><div><h2>{{s['title']|render_rich}}</h2><p class="muted">{{s['body']|render_rich}}</p></div></div><div class="home-icon-grid home-solutions-grid">{% for c in cards if c['card_type']=='solution' and c['show_home'] %}<article data-card-id="{{c['id']}}"><div class="icon-placeholder">{{image(c['icon'],'icon-clean')}}</div><h3>{{c['title']|render_rich}}</h3></article>{% endfor %}</div><a class="text-link" href="/solutions">مشاهده راهکارها ←</a></section>
+{% set s=bykey.get('home-scenarios') %}<section class="section container scenarios home-scenarios" data-section-id="{{s['id']}}">{{edit(s)}}<div class="section-head"><div><h2>{{s['title']|render_rich}}</h2><p class="muted">{{s['body']|render_rich}}</p></div></div><div class="scenario-grid">{% for c in cards if c['card_type']=='scenario_home' %}<article class="scenario-card" data-card-id="{{c['id']}}">{{image(c['image'],'scenario-image')}}<div class="scenario-copy"><h3>{{c['title']|render_rich}}</h3><p>{{c['short_desc']|render_rich}}</p><a href="{{c['link'] or '/solutions'}}" target="_blank">مشاهده راهکار ←</a></div></article>{% endfor %}</div></section>
+{% set s=bykey.get('home-3d-showcase') %}
+{% if showcase_cards or admin_preview %}
+<section class="section container model-showcase-section" data-section-id="{{s['id'] if s else 0}}" data-section-key="home-3d-showcase">
+  {% if admin_preview and s %}<button class="preview-edit" onclick="parent.postMessage({type:'edit-showcase-section',id:{{s['id']}}},'*');event.stopPropagation()">ویرایش این بخش</button>{% endif %}
+  <div class="showcase-carousel" id="modelShowcaseCarousel">
+    {% for card in showcase_cards %}
+    <article class="showcase-card {% if loop.first %}is-active{% endif %}" data-card-id="{{card['id']}}" data-model-url="{{url_for('serve_model',filename=card['model_file'])}}" data-model-hash="{{card['actual_model_hash']}}" data-config-dir="{{card['config_dir']}}" data-config='{{card["config_json"]|e}}'>
+      <div class="showcase-model-wrap" style="background:var(--model-background)">
+        <button type="button" class="showcase-fullscreen-toggle" aria-label="نمایش تمام‌صفحه مدل" title="نمایش تمام‌صفحه">⛶</button><button type="button" class="showcase-config-toggle" aria-label="جمع یا باز کردن کانفیگوریشن‌ها" aria-expanded="true" title="نمایش/پنهان‌کردن کانفیگوریشن‌ها">☰</button>
+        <model-viewer class="showcase-model" src="{{url_for('serve_model',filename=card['model_file'])}}" camera-controls auto-rotate rotation-per-second="10deg" camera-orbit="auto auto auto" shadow-intensity="0.8" style="background:var(--model-background)" alt="مدل سه‌بعدی"></model-viewer>
+      </div>
+      <div class="showcase-config-groups">
+        <div class="config-groups-host" data-config-dir="{{card['config_dir']}}"></div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% if showcase_cards|length > 1 %}<div class="showcase-controls"><button type="button" data-showcase-prev aria-label="کارت قبلی">‹</button><div class="showcase-dots">{% for card in showcase_cards %}<button type="button" data-showcase-index="{{loop.index0}}" aria-label="نمایش کارت {{loop.index}}"></button>{% endfor %}</div><button type="button" data-showcase-next aria-label="کارت بعدی">›</button></div>{% endif %}
+</section>
+{% endif %}
+{% set s=bykey.get('home-capabilities') %}<section class="section container" data-section-id="{{s['id']}}">{{edit(s)}}<div class="section-head"><div><h2>{{s['title']|render_rich}}</h2><p class="muted">{{s['body']|render_rich}}</p></div></div><div class="home-icon-grid">{% for c in cards if c['card_type']=='main_capability' and c['show_home'] %}<article data-card-id="{{c['id']}}"><div class="icon-placeholder">{{image(c['icon'],'icon-clean')}}</div><h3>{{c['title']|render_rich}}</h3></article>{% endfor %}</div><a class="text-link" href="/features">مشاهده قابلیت‌ها ←</a></section>
+{% set s=bykey.get('home-projects') %}<section class="section container work-strip" id="projects" data-section-id="{{s['id']}}">{{edit(s)}}<div class="section-head"><div><h2>{{s['title']|render_rich}}</h2><p class="muted">{{s['body']|render_rich}}</p></div></div><div class="horizontal-cards embedded-work-cards">{% for c in cards if c['card_type']=='work' and c['show_home'] %}<article class="work-card" data-card-id="{{c['id']}}"><div class="work-card-media-wrap">{{image(c['image'],'work-card-image')}}</div><div class="work-overlay"><span class="tag">{{c['tag'] or 'Artect'}}</span><div><h3>{{c['title']|render_rich}}</h3><p>{{c['short_desc']|render_rich}}</p></div><a class="btn primary" target="_blank" href="/project/{{c['slug']}}">تجربه کنید</a></div></article>{% endfor %}</div><a class="btn ghost" href="/experiences">مشاهده همه تجربه‌ها</a></section>
+{% set s=bykey.get('home-contact') %}<section class="section container contact-cta" data-section-id="{{s['id']}}">{{edit(s)}}<div class="brand-placeholder"><img class="site-logo-placeholder" src="{{settings.get('logo','/images/placeholder-logo.png')}}" alt="لوگوی شرکت"></div><div class="contact-cta-copy"><h2>{{s['title']|render_rich}}</h2><p class="muted">{{s['body']|render_rich}}</p><div class="actions"><a class="btn primary" href="{{settings.get('home_btn_primary_link','/contact')}}">{{settings.get('home_btn_primary_text','تماس با ما')}}</a><a class="btn ghost" href="{{settings.get('home_btn_secondary_link','/contact')}}">{{settings.get('home_btn_secondary_text','درخواست Demo')}}</a></div></div></section>
+{% elif page_kind in ['artect','mr-ar'] %}
+{% set s=bykey.get('problems') %}<section class="section container two-col-section"><div data-section-id="{{s['id']}}">{{edit(s)}}<h2>{{s['title']|render_rich}}</h2><p class="muted">{{s['body']|render_rich}}</p><div class="icon-card-list">{% for c in cards if c['card_type']=='problem_'+page_kind %}<article data-card-id="{{c['id']}}"><div class="icon-placeholder">{{image(c['icon'],'icon-clean')}}</div><p>{{c['short_desc']|render_rich}}</p></article>{% endfor %}</div><p class="muted">دیدن نتیجه در فضای واقعی، بخش مهمی از تصمیم‌گیری را روشن می‌کند.</p></div>
+{% if page_kind=='artect' %}{% set s2=bykey.get('process') %}<div data-section-id="{{s2['id']}}">{{edit(s2)}}<h2>{{s2['title']|render_rich}}</h2><div class="flow-grid-2x2">{% for c in cards if c['card_type']=='process_artect' %}<div class="flow-item" data-card-id="{{c['id']}}"><div class="icon-placeholder">{{image(c['icon'],'icon-clean')}}</div><h3>{{c['title']|render_rich}}</h3><p>{{c['short_desc']|render_rich}}</p></div>{% endfor %}</div><p class="muted">{{s2['body']|render_rich}}</p></div>{% else %}{% set s2=bykey.get('solution') %}<div class="solution-split" data-section-id="{{s2['id']}}">{{edit(s2)}}{{image(s2['image'],'solution-large-image')}}<div><h2>{{s2['title']|render_rich}}</h2><p class="muted">{{s2['body']|render_rich}}</p></div></div>{% endif %}</section>
+{% if page_kind=='artect' %}{% set sa=bykey.get('applications') %}<section class="section container artect-solutions-full" data-section-id="{{sa['id']}}">{{edit(sa)}}<div class="section-head"><div><h2>{{sa['title']|render_rich}}</h2><p class="muted">{{sa['body']|render_rich}}</p></div></div><div class="artect-solution-grid">{% for c in cards if c['card_type']=='solution' and c['show_artect'] %}<article data-card-id="{{c['id']}}"><div class="artect-solution-media">{{image(c['image'],'application-image')}}</div><div class="artect-solution-copy"><h3>{{c['title']|render_rich}}</h3><p>{{c['short_desc']|render_rich}}</p></div></article>{% endfor %}</div><a class="text-link" href="/solutions">مشاهده راهکارها ←</a></section>{% else %}{% set sv=bykey.get('visual') %}<section class="section container artect-solutions-full mrar-solutions-full" data-section-id="{{sv['id']}}">{{edit(sv)}}<div class="section-head"><div><h2>{{sv['title']|render_rich}}</h2><p class="muted">{{sv['body']|render_rich}}</p></div></div><div class="artect-solution-grid">{% for c in cards if c['card_type']=='solution' and c['show_mrar'] %}<article data-card-id="{{c['id']}}"><div class="artect-solution-media">{{image(c['image'],'application-image')}}</div><div class="artect-solution-copy"><h3>{{c['title']|render_rich}}</h3><p>{{c['short_desc']|render_rich}}</p></div></article>{% endfor %}</div><a class="text-link" href="/solutions">مشاهده راهکارها ←</a></section>{% endif %}
+{% set ss=bykey.get('scenarios') %}<section class="section container scenarios" data-section-id="{{ss['id']}}">{{edit(ss)}}<h2>{{ss['title']|render_rich}}</h2><p class="muted">{{ss['body']|render_rich}}</p><div class="scenario-grid">{% if page_kind=='mr-ar' %}{% for c in cards if c['card_type'] in ['scenario_mrar_left','scenario_mrar_right'] %}<article class="scenario-card" data-card-id="{{c['id']}}">{{image(c['image'] or 'placeholder-scenario.png','scenario-image')}}<div class="scenario-copy"><h3>{{c['title']|render_rich}}</h3><p>{{c['short_desc']|render_rich}}</p><a class="text-link scenario-solution-link" href="{{c['link'] or '/solutions'}}">مشاهده راهکار ←</a></div></article>{% endfor %}{% else %}{% for c in cards if c['card_type']=='scenario_artect' %}<article class="scenario-card" data-card-id="{{c['id']}}">{{image(c['image'] or 'placeholder-scenario.png','scenario-image')}}<div class="scenario-copy"><h3>{{c['title']|render_rich}}</h3><p>{{c['short_desc']|render_rich}}</p><a class="text-link scenario-solution-link" href="{{c['link'] or '/solutions'}}">مشاهده راهکار ←</a></div></article>{% endfor %}{% endif %}</div></section>
+{% set sp=bykey.get('projects') %}<section class="section container work-strip" id="projects" data-section-id="{{sp['id']}}">{{edit(sp)}}<h2>{{sp['title']|render_rich}}</h2><p class="muted">{{sp['body']|render_rich}}</p><div class="horizontal-cards embedded-work-cards">{% for c in cards if c['card_type']=='work' and (c['show_artect'] if page_kind=='artect' else c['show_mrar']) %}<article class="work-card" data-card-id="{{c['id']}}"><div class="work-card-media-wrap">{{image(c['image'],'work-card-image')}}</div><div class="work-overlay"><span class="tag">{{c['tag'] or 'Artect'}}</span><div><h3>{{c['title']|render_rich}}</h3><p>{{c['short_desc']|render_rich}}</p></div><a class="btn primary" target="_blank" href="/project/{{c['slug']}}">تجربه کنید</a></div></article>{% endfor %}</div><a class="btn ghost" href="/experiences">مشاهده همه تجربه‌ها</a></section>
+{% set sc=bykey.get('capabilities') %}{% set su=bykey.get('usage') %}<section class="section container two-col-section"><div data-section-id="{{sc['id']}}">{{edit(sc)}}<h2>{{sc['title']|render_rich}}</h2><p class="muted">{{sc['body']|render_rich}}</p><div class="home-icon-grid">{% for c in cards if c['card_type']=='main_capability' and (c['show_artect'] if page_kind=='artect' else c['show_mrar']) %}<article data-card-id="{{c['id']}}"><div class="icon-placeholder">{{image(c['icon'],'icon-clean')}}</div><h3>{{c['title']|render_rich}}</h3></article>{% endfor %}</div><a class="text-link" href="/features">مشاهده قابلیت‌ها ←</a></div><div data-section-id="{{su['id']}}">{{edit(su)}}<h2>{{su['title']|render_rich}}</h2><div class="flow-grid-2x2 usage-flow">{% for c in cards if c['card_type']==('usage_artect' if page_kind=='artect' else 'usage_mrar') %}<div class="flow-item" data-card-id="{{c['id']}}"><div class="icon-placeholder">{{image(c['icon'],'icon-clean')}}</div><p>{{c['short_desc']|render_rich}}</p></div>{% endfor %}</div><p class="muted">{{su['body']|render_rich}}</p></div></section>
+{% set sm=bykey.get('modeling') %}{% set ct=bykey.get('contact') %}<section class="section container two-col-section final-pair"><div data-section-id="{{sm['id']}}">{{edit(sm)}}{{image(sm['image'],'final-image')}}<div><h2>{{sm['title']|render_rich}}</h2><p class="muted">{{sm['body']|render_rich}}</p><a class="btn primary" href="/contact">درخواست مدلسازی</a></div></div><div data-section-id="{{ct['id']}}">{{edit(ct)}}{{image(ct['image'],'final-image')}}<div><h2>{{ct['title']|render_rich}}</h2><p class="muted">{{ct['body']|render_rich}}</p><div class="actions"><a class="btn primary" href="/contact">تماس با ما</a><a class="btn ghost" href="/contact">درخواست Demo</a></div></div></div></section>
+{% endif %}
+{% else %}
+{% set h=bykey.get('hero') %}<section class="container inner-hero" data-section-id="{{h['id']}}">{{edit(h)}}{{image(h['image'],'inner-hero-image')}}<div><h1>{{h['title']|render_rich}}</h1><p class="lead">{{h['body']|render_rich}}</p></div></section>
+{% if page_kind=='solutions' %}{% set cs=bykey.get('cards') or bykey.get('solutions') %}<section class="section container solutions-layout" data-section-id="{{cs['id'] if cs else 0}}">{% if cs %}{{edit(cs)}}{% endif %}<div class="solution-details" id="solutionDetails"></div><div class="solution-list">{% for c in cards if c['card_type']=='solution' %}<article class="solution-card" data-card-id="{{c['id']}}" id="solution-{{c['id']}}" data-id="{{c['id']}}" data-full="{{c['full_desc']|e}}" data-sub="{{c['short_desc']|e}}" data-title="{{c['title']|e}}" data-image="{{c['image']|asset_url}}" data-video="{{c['video']|e}}" onclick="openSolution({{c['id']}})"><div>{{image(c['image'],'solution-thumb')}}</div><h3>{{c['title']|render_rich}}</h3></article>{% endfor %}</div></section>
+{% elif page_kind=='features' %}{% set cs=bykey.get('cards') or bykey.get('features') %}<section class="section container" data-section-id="{{cs['id'] if cs else 0}}">{% if cs %}{{edit(cs)}}{% endif %}<div class="capability-grid">{% for c in cards if c['card_type']=='main_capability' %}<article data-card-id="{{c['id']}}"><div class="icon-placeholder">{{image(c['icon'],'icon-clean')}}</div><h3>{{c['title']|render_rich}}</h3></article>{% endfor %}</div><div class="supp-grid">{% for c in cards if c['card_type']=='supp_capability' %}<article data-card-id="{{c['id']}}"><div class="icon-placeholder">{{image(c['icon'],'icon-clean')}}</div><h3>{{c['title']|render_rich}}</h3><p class="muted">{{c['short_desc']|render_rich}}</p></article>{% endfor %}</div></section>
+{% elif page_kind=='experiences' %}{% set cs=bykey.get('cards') or bykey.get('projects') %}<section class="section container" id="projects" data-section-id="{{cs['id'] if cs else 0}}">{% if cs %}{{edit(cs)}}{% endif %}<div class="work-grid">{% for c in cards if c['card_type']=='work' %}<article class="work-card" data-card-id="{{c['id']}}"><div class="work-card-media-wrap">{{image(c['image'],'work-card-image')}}</div><div class="work-overlay"><span class="tag">{{c['tag'] or 'Artect'}}</span><div><h3>{{c['title']|render_rich}}</h3><p>{{c['short_desc']|render_rich}}</p></div><a class="btn primary" target="_blank" href="/project/{{c['slug']}}">تجربه کنید</a></div></article>{% endfor %}</div></section>
+{% elif page_kind=='team' %}{% set cs=bykey.get('cards') or bykey.get('team') %}<section class="section container" data-section-id="{{cs['id'] if cs else 0}}">{% if cs %}{{edit(cs)}}{% endif %}<div class="team-grid">{% for m in members %}<article class="team-card" data-team-id="{{m['id']}}">{{image(m['image'],'team-image')}}<h3>{{m['name']|render_rich}}</h3><p class="accent">{{m['role']|render_rich}}</p></article>{% endfor %}</div></section>
+{% elif page_kind=='contact' %}<section class="section container contact-page"><div class="contact-form"><h2>درخواست Demo</h2><form method="post"><div class="formgrid"><input name="first_name" placeholder="نام"><input name="last_name" placeholder="نام خانوادگی"><input name="phone" placeholder="شماره تماس"><input name="company" placeholder="نام شرکت"><input name="industry" placeholder="حوزه فعالیت"><input name="services" placeholder="خدمات موردنظر"></div><textarea name="details" placeholder="توضیحات"></textarea><input name="heard_from" placeholder="چطور با ما آشنا شدید؟"><button class="btn primary">ارسال درخواست</button></form></div><div class="contact-info"><h2>اطلاعات تماس</h2><p><b>تلفن</b><br>{{settings.get('phone')}}</p><p><b>تلگرام</b><br>{{settings.get('telegram')}}</p><p><b>ایمیل</b><br>{{settings.get('email')}}</p><p><b>آدرس شرکت</b><br>{{settings.get('address')}}</p></div></section>{% endif %}
+{% endif %}
+</main>
+
+{% if page_kind == 'artect' %}
+<script>
+/* Keep the Annotation showcase in the position selected in Admin > Page sections.
+   This only moves the existing showcase node; the section contents and other site sections stay intact. */
+(function(){
+  const main=document.querySelector('main.page-shell[data-page-slug="artect"]');
+  if(!main)return;
+  const ids=(main.dataset.sectionIds||'').split(',');
+  const orders=(main.dataset.sectionOrders||'').split(',').map(Number);
+  const orderById=new Map();
+  ids.forEach((id,i)=>{if(id && Number.isFinite(orders[i]))orderById.set(String(id),orders[i]);});
+  const showcase=main.querySelector('.artect-annotation-section[data-section-key="artect-annotation-showcase"]');
+  if(!showcase)return;
+  const showcaseOrder=orderById.get(String(showcase.dataset.sectionId||''));
+  if(!Number.isFinite(showcaseOrder))return;
+  const ranksFor=(el)=>{
+    const nodes=[];
+    if(el.matches?.('[data-section-id]'))nodes.push(el);
+    el.querySelectorAll?.('[data-section-id]').forEach(n=>nodes.push(n));
+    return nodes.map(n=>orderById.get(String(n.dataset.sectionId||''))).filter(Number.isFinite);
+  };
+  const ranked=[...main.children]
+    .filter(el=>el!==showcase)
+    .map(el=>({el,ranks:ranksFor(el)}))
+    .filter(x=>x.ranks.length);
+  const next=ranked.find(x=>Math.min(...x.ranks)>showcaseOrder);
+  if(next){main.insertBefore(showcase,next.el);return;}
+  const previous=[...ranked].reverse().find(x=>Math.max(...x.ranks)<=showcaseOrder);
+  if(previous){
+    if(previous.el.nextSibling)main.insertBefore(showcase,previous.el.nextSibling);
+    else main.appendChild(showcase);
+    return;
+  }
+  if(ranked.length)main.insertBefore(showcase,ranked[0].el);
+})();
+</script>
+{% endif %}
+
+{% if page_kind == 'artect' %}
+<div class="artect-ann-fullscreen-modal" id="artectAnnFullscreenModal" aria-hidden="true" hidden>
+  <div class="artect-ann-fullscreen-shell" role="dialog" aria-modal="true" aria-label="نمایش تمام‌صفحه مدل و Annotationها">
+    <button type="button" class="artect-ann-fullscreen-close" aria-label="بستن نمایش تمام‌صفحه">×</button>
+    <div class="artect-ann-fullscreen-content" id="artectAnnFullscreenContent"></div>
+  </div>
+</div>
+<script>
+(function(){
+  const root=document.getElementById('artectAnnotationCarousel');
+  const modal=document.getElementById('artectAnnFullscreenModal');
+  const fullscreenContent=document.getElementById('artectAnnFullscreenContent');
+  if(!root)return;
+  const cards=[...root.querySelectorAll('.artect-ann-card')];
+  if(!cards.length)return;
+  let active=0;
+  const rendererUrl=root.dataset.viewerSrc||root.querySelector('.artect-ann-viewer-frame')?.dataset.rendererSrc||'/static/artect_annotation_viewer.html?embed=1';
+  const parseAnnotations=card=>{try{const d=JSON.parse(card.dataset.annotations||'{}');return Array.isArray(d?.tour?.annotations)?d.tour.annotations:[]}catch(e){return[]}};
+  function fillList(host,annotations,card){
+    host.replaceChildren();
+    if(!annotations.length){const empty=document.createElement('div');empty.className='artect-ann-empty-note';empty.textContent='برای این مدل Annotation ثبت نشده است.';host.append(empty);return;}
+    annotations.forEach((a,i)=>{const b=document.createElement('button');b.type='button';b.className='artect-ann-item';b.dataset.annIndex=String(i);b.textContent=String(a.title||('Annotation '+(i+1)));b.setAttribute('aria-current',String(Number(card.dataset.activeAnnIndex)===i));if(Number(card.dataset.activeAnnIndex)===i)b.classList.add('is-active');host.append(b);});
+  }
+  function updateLists(card){
+    const annotations=parseAnnotations(card),idx=Number(card.dataset.activeAnnIndex);const selected=Number.isInteger(idx)&&idx>=0&&idx<annotations.length?annotations[idx]:null;
+    card.querySelectorAll('.artect-ann-menu-list,.artect-ann-mobile-list').forEach(host=>fillList(host,annotations,card));
+    const description=selected?(String(selected.description||'').trim()||'توضیحی برای این نقطه ثبت نشده است.') : '';
+    card.querySelectorAll('.artect-ann-selected-description,.artect-ann-mobile-description').forEach(host=>{host.textContent=description;host.hidden=true;});
+    card.classList.toggle('has-annotations',annotations.length>0);
+  }
+  function postToViewer(card,message){const frame=card?.querySelector('.artect-ann-viewer-frame');if(!frame?.contentWindow)return false;try{frame.contentWindow.postMessage(message,location.origin);return true}catch(_){return false}}
+  function startViewer(card){
+    const frame=card?.querySelector('.artect-ann-viewer-frame');if(!frame)return;
+    const desired=frame.dataset.rendererSrc||rendererUrl;
+    if(!frame.getAttribute('src')||frame.getAttribute('src')==='about:blank')frame.setAttribute('src',desired);
+  }
+  function stopViewer(card){const frame=card?.querySelector('.artect-ann-viewer-frame');if(!frame)return;if(frame.getAttribute('src')&&frame.getAttribute('src')!=='about:blank'){frame.setAttribute('src','about:blank');frame.dataset.viewerLoaded='';}}
+  function sendCardToViewer(card,sourceWindow){
+    const annotations=parseAnnotations(card);
+    const url=card.dataset.modelUrl||'';
+    const path=url.split('?')[0].split('/').pop()||'model.glb';
+    const modelName=(()=>{try{return decodeURIComponent(path)}catch(_){return path}})();
+    const activeIndex=Number(card.dataset.activeAnnIndex);let annData={};try{annData=JSON.parse(card.dataset.annotations||'{}')}catch(_){}if(!annData||annData.schema!=='artect.annotation-tour'||!Array.isArray(annData?.tour?.annotations))annData={schema:'artect.annotation-tour',schemaVersion:1,model:{fileName:modelName},tour:{annotations:[]}};const payload={type:'artect-load-card',modelUrl:url,modelName,displayTitle:card.dataset.cardTitle||modelName,annotations:annData,activeIndex:Number.isInteger(activeIndex)&&activeIndex>=0?activeIndex:-1};
+    const frame=card.querySelector('.artect-ann-viewer-frame');
+    try{(sourceWindow||frame?.contentWindow)?.postMessage(payload,location.origin);(sourceWindow||frame?.contentWindow)?.postMessage({type:'artect-set-preview',preview:!card.classList.contains('is-active')},location.origin);const idx=Number(card.dataset.activeAnnIndex);if(Number.isInteger(idx)&&idx>=0&&idx<annotations.length)(sourceWindow||frame?.contentWindow)?.postMessage({type:'artect-viewer-go-to',index:idx},location.origin);}catch(e){console.warn('Could not initialize Artect annotation renderer',e)}
+  }
+  function findCardForWindow(source){
+    for(const card of [...cards,...(fullscreenContent?[...fullscreenContent.querySelectorAll('.artect-ann-card')]:[])]){const frame=card.querySelector('.artect-ann-viewer-frame');if(frame?.contentWindow===source)return card;}
+    return null;
+  }
+  function relatedCards(card){const id=card?.dataset.cardId;return [...cards,...(fullscreenContent?[...fullscreenContent.querySelectorAll('.artect-ann-card')]:[])].filter(c=>c.dataset.cardId===id)}
+  function selectAnnotation(card,index){
+    const annotations=parseAnnotations(card),a=annotations[index];if(!a)return;
+    const peers=relatedCards(card);peers.forEach(c=>{c.dataset.activeAnnIndex=String(index);updateLists(c)});
+    peers.forEach(c=>postToViewer(c,{type:'artect-viewer-go-to',index}));
+  }
+  function initCard(card){updateLists(card);const frame=card.querySelector('.artect-ann-viewer-frame');if(frame){frame.title='رندرر سه‌بعدی تعاملی Artect — '+(card.dataset.cardTitle||'مدل سه‌بعدی');frame.addEventListener('load',()=>{const style=getComputedStyle(document.documentElement);frame.contentWindow?.postMessage({type:'artect-theme',theme:{primary:style.getPropertyValue('--primary').trim(),card:style.getPropertyValue('--card').trim()||style.getPropertyValue('--surface').trim(),border:style.getPropertyValue('--border').trim(),text:style.getPropertyValue('--text').trim(),font:style.fontFamily}},location.origin);});}}
+  cards.forEach(initCard);
+  function draw(){
+    const count=cards.length;
+    cards.forEach((card,i)=>{
+      const on=i===active,left=count>2&&i===(active-1+count)%count,right=count>1&&i===(active+1)%count&&!left,visible=on||left||right;
+      card.classList.toggle('is-active',on);card.classList.toggle('is-left',left);card.classList.toggle('is-right',right);card.classList.toggle('is-hidden',!visible);card.setAttribute('aria-hidden',String(!visible));
+      const frame=card.querySelector('.artect-ann-viewer-frame');
+      if(frame){frame.style.pointerEvents=on?'auto':'none';if(visible){startViewer(card);postToViewer(card,{type:'artect-set-preview',preview:!on});}else stopViewer(card);}
+      const menuToggle=card.querySelector('.artect-ann-menu-toggle');if(menuToggle)menuToggle.setAttribute('aria-expanded',String(!card.classList.contains('menu-collapsed')));
+    });
+    root.querySelectorAll('[data-artect-ann-dot]').forEach((b,i)=>b.classList.toggle('is-active',i===active));
+  }
+  function go(index){active=(index+cards.length)%cards.length;draw();}
+  root.querySelector('.artect-ann-prev')?.addEventListener('click',()=>go(active-1));root.querySelector('.artect-ann-next')?.addEventListener('click',()=>go(active+1));
+  root.querySelectorAll('[data-artect-ann-dot]').forEach(b=>b.addEventListener('click',()=>go(Number(b.dataset.artectAnnDot))));
+  function closeFullscreen(){if(!modal)return;fullscreenContent.replaceChildren();modal.hidden=true;modal.setAttribute('aria-hidden','true');document.body.classList.remove('artect-ann-fullscreen-open');}
+  function openFullscreen(source){
+    if(!modal||!fullscreenContent)return;
+    fullscreenContent.replaceChildren();
+    const clone=source.cloneNode(true);clone.className='artect-ann-card is-active artect-ann-fullscreen-card';clone.removeAttribute('aria-hidden');clone.style.cssText='';
+    const frame=clone.querySelector('.artect-ann-viewer-frame');if(frame){frame.removeAttribute('src');frame.style.pointerEvents='auto';}
+    const toggle=clone.querySelector('.artect-ann-menu-toggle');if(toggle)toggle.setAttribute('aria-expanded','true');
+    fullscreenContent.append(clone);modal.hidden=false;modal.setAttribute('aria-hidden','false');document.body.classList.add('artect-ann-fullscreen-open');initCard(clone);startViewer(clone);
+  }
+  modal?.querySelector('.artect-ann-fullscreen-close')?.addEventListener('click',closeFullscreen);
+  modal?.addEventListener('click',e=>{if(e.target===modal)closeFullscreen();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal&&!modal.hidden)closeFullscreen();});
+  window.addEventListener('message',e=>{
+    if(e.origin!==location.origin||!e.data)return;
+    const card=findCardForWindow(e.source);if(!card)return;
+    if(e.data.type==='artect-viewer-ready')sendCardToViewer(card,e.source);
+    else if(e.data.type==='artect-annotation-selected'&&Number.isInteger(e.data.index)){relatedCards(card).forEach(c=>{const changed=Number(c.dataset.activeAnnIndex)!==e.data.index;c.dataset.activeAnnIndex=String(e.data.index);updateLists(c);if(changed&&c.querySelector('.artect-ann-viewer-frame')?.contentWindow!==e.source)postToViewer(c,{type:'artect-viewer-go-to',index:e.data.index});});}
+    else if(e.data.type==='artect-viewer-error'){const frame=card.querySelector('.artect-ann-viewer-frame');if(frame)frame.title='خطا در نمایش مدل: '+String(e.data.message||'خطای نامشخص');console.error('Artect viewer error:',e.data.message);}
+    else if(e.data.type==='artect-viewer-loaded'){card.dataset.viewerLoaded='1';}
+  });
+  document.addEventListener('click',e=>{
+    const item=e.target.closest('.artect-ann-item');if(item){e.preventDefault();e.stopPropagation();const card=item.closest('.artect-ann-card');if(card)selectAnnotation(card,Number(item.dataset.annIndex));return;}
+    const menuToggle=e.target.closest('.artect-ann-menu-toggle');if(menuToggle){e.preventDefault();e.stopPropagation();const card=menuToggle.closest('.artect-ann-card');if(card){card.classList.toggle('menu-collapsed');menuToggle.setAttribute('aria-expanded',String(!card.classList.contains('menu-collapsed')));}return;}
+    const expand=e.target.closest('.artect-ann-fullscreen-toggle');if(expand){e.preventDefault();e.stopPropagation();const card=expand.closest('.artect-ann-card');if(card)openFullscreen(card);return;}
+    const card=e.target.closest('#artectAnnotationCarousel .artect-ann-card');if(card&&!e.target.closest('button,iframe')){const idx=cards.indexOf(card);if(idx>=0&&idx!==active)go(idx);}
+  });
+  root.addEventListener('click',e=>{const card=e.target.closest('.artect-ann-card');if(!card||e.target.closest('button,iframe')||card.classList.contains('is-active'))return;const idx=cards.indexOf(card);if(idx>=0)go(idx);});
+  draw();
+})();
+</script>
+{% endif %}
+
+{# Render order is sourced from page_sections.sort_order. The template keeps each page's existing markup/styles, then moves whole section blocks into persisted order. #}
+<script>
+window.PAGE_SECTION_ORDER = {{ sections|map(attribute='id')|list|tojson }};
+(function applyPersistedSectionOrder(){
+  const shell = document.querySelector('main.page-shell');
+  if (!shell) return;
+  const sectionNodes = [...shell.querySelectorAll('[data-section-id]')].filter(node => {
+    const id = String(node.getAttribute('data-section-id') || '').trim();
+    return id && id !== '0' && id !== 'None';
+  });
+  if (sectionNodes.length < 2) return;
+
+  const renderedIds = new Set(sectionNodes.map(node => String(node.getAttribute('data-section-id'))));
+  const orderedIds = [];
+  (Array.isArray(window.PAGE_SECTION_ORDER) ? window.PAGE_SECTION_ORDER : []).map(String).forEach(id => {
+    if (renderedIds.has(id) && !orderedIds.includes(id)) orderedIds.push(id);
+  });
+  sectionNodes.forEach(node => {
+    const id = String(node.getAttribute('data-section-id'));
+    if (!orderedIds.includes(id)) orderedIds.push(id);
+  });
+  const rank = new Map(orderedIds.map((id, index) => [id, index]));
+
+  function topLevelBlock(node){
+    let current = node;
+    while (current.parentElement && current.parentElement !== shell) current = current.parentElement;
+    return current.parentElement === shell ? current : null;
+  }
+  const sectionsByBlock = new Map();
+  sectionNodes.forEach(node => {
+    const block = topLevelBlock(node);
+    if (!block) return;
+    if (!sectionsByBlock.has(block)) sectionsByBlock.set(block, []);
+    sectionsByBlock.get(block).push(node);
+  });
+
+  const items = [];
+  [...shell.children].forEach((block, originalIndex) => {
+    const nodes = sectionsByBlock.get(block) || [];
+    if (!nodes.length) {
+      items.push({ element:block, rank:Number.MAX_SAFE_INTEGER, originalIndex, subIndex:0 });
+      return;
+    }
+    const ranks = nodes.map(node => rank.get(String(node.getAttribute('data-section-id'))));
+    const remainsOneVisualBlock = ranks.every((value, index) => index === 0 || value === ranks[index - 1] + 1);
+    if (nodes.length === 1 || remainsOneVisualBlock) {
+      items.push({ element:block, rank:ranks[0], originalIndex, subIndex:0 });
+      return;
+    }
+
+    // This layout originally grouped multiple independently editable sections in a two-column wrapper.
+    // When their saved order separates them, make each section an independent full-width block.
+    nodes.forEach((node, subIndex) => {
+      const wrapper = document.createElement(block.tagName.toLowerCase());
+      [...block.attributes].forEach(attribute => {
+        if (attribute.name !== 'id' && attribute.name !== 'data-section-id') wrapper.setAttribute(attribute.name, attribute.value);
+      });
+      wrapper.classList.add('dynamic-section-split');
+      wrapper.appendChild(node);
+      items.push({ element:wrapper, rank:ranks[subIndex], originalIndex, subIndex });
+    });
+    if (block.children.length) items.push({ element:block, rank:Math.min(...ranks) + 0.25, originalIndex, subIndex:nodes.length });
+    else block.remove();
+  });
+
+  items.sort((a,b) => a.rank - b.rank || a.originalIndex - b.originalIndex || a.subIndex - b.subIndex);
+  items.forEach(item => shell.appendChild(item.element));
+})();
+</script>
+<style>
+.dynamic-section-split{width:100%;max-width:100%;grid-template-columns:minmax(0,1fr)!important;box-sizing:border-box}
+.dynamic-section-split>[data-section-id]{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+</style>
+
+<script>(function(){const slug=document.querySelector('.page-shell')?.dataset.pageSlug;if(!slug)return;function pathKey(el){const parts=[];let n=el;while(n&&n!==document.body&&parts.length<5){let i=0,x=n;while((x=x.previousElementSibling))i++;parts.unshift(n.tagName.toLowerCase()+'.'+(n.className||'').toString().split(' ').filter(Boolean).slice(0,2).join('.')+'#'+i);n=n.parentElement}return parts.join('/')}fetch('/api/page-inline/'+slug).then(r=>r.json()).then(data=>{document.querySelectorAll('[data-section-id]').forEach(sec=>{const obj=data[String(sec.dataset.sectionId)]||{};Object.entries(obj).forEach(([k,v])=>{if(!k.startsWith('__inline:'))return;const el=[...sec.querySelectorAll('h1,h2,h3,p,a.btn,a.text-link,button,.brand-placeholder,.central-placeholder')].find(x=>pathKey(x)===k.slice(9));if(el)el.innerHTML=compileRichPreviewHtml(v);});});}).catch(()=>{});})();</script><div id="pageModelModal" class="page-model-modal" aria-hidden="true">
+  <div class="page-model-modal-card" role="dialog" aria-modal="true" aria-label="نمایش بزرگ مدل سه‌بعدی">
+    <button type="button" class="page-model-modal-close" onclick="closePageModel()" aria-label="بستن">×</button>
+    <div id="pageModelModalStage"></div>
+  </div>
+</div>
+<script>
+function openPageModel(btn){
+  if(btn?.classList?.contains('mrar-model-expand') && typeof window.openMrarFullscreen === 'function'){ window.openMrarFullscreen(btn); return; }
+  const modal=document.getElementById('pageModelModal'),stage=document.getElementById('pageModelModalStage');
+  const frame=btn?.closest('.page-model-frame, .mrar-motion-viewer-wrap'),source=frame?.querySelector('model-viewer');
+  if(!modal||!stage||!source)return;
+  stage.innerHTML='';
+  const bg=frame?.style.getPropertyValue('--model-bg-url'),ratio=frame?.style.getPropertyValue('--model-bg-ratio');
+  if(bg)stage.style.setProperty('--model-bg-url',bg); else stage.style.removeProperty('--model-bg-url');
+  if(ratio)stage.style.setProperty('--model-bg-ratio',ratio); else stage.style.removeProperty('--model-bg-ratio');
+  const viewer=source.cloneNode(true); viewer.removeAttribute('style'); viewer.classList.add('page-model-modal-viewer');
+  // Extend mode intentionally enables the full camera interaction: rotate + pan + zoom.
+  viewer.setAttribute('camera-controls',''); viewer.removeAttribute('disable-pan'); viewer.removeAttribute('disable-zoom');
+  viewer.setAttribute('auto-rotate',''); viewer.setAttribute('auto-rotate-delay','0'); viewer.setAttribute('rotation-per-second','12deg');
+  stage.appendChild(viewer); modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); document.body.classList.add('page-model-modal-open');
+  resizePageModelModal(ratio);
+}
+function resizePageModelModal(ratio){
+  const card=document.querySelector('.page-model-modal-card');
+  if(!card)return;
+  let r=16/9;
+  if(ratio){const parts=String(ratio).split('/').map(Number);if(parts.length===2&&parts[0]>0&&parts[1]>0)r=parts[0]/parts[1];}
+  const maxW=window.innerWidth*0.94;
+  const maxH=window.innerHeight*0.90;
+  let w=maxW,h=w/r;
+  if(h>maxH){h=maxH;w=h*r;}
+  card.style.width=Math.max(280,Math.floor(w))+'px';
+  card.style.height=Math.max(220,Math.floor(h))+'px';
+  card.style.aspectRatio=r;
+}
+
+function closePageModel(){
+  const modal=document.getElementById('pageModelModal'),stage=document.getElementById('pageModelModalStage');
+  if(stage)stage.innerHTML='';
+  if(modal){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');}
+  document.body.classList.remove('page-model-modal-open');
+}
+document.addEventListener('click',e=>{if(e.target?.id==='pageModelModal')closePageModel()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePageModel()});
+window.addEventListener('resize',()=>{const stage=document.getElementById('pageModelModalStage');if(document.getElementById('pageModelModal')?.classList.contains('open'))resizePageModelModal(stage?.style.getPropertyValue('--model-bg-ratio')||'');});
+</script>
+{% if admin_preview %}<script>
+(function(){
+let activeSection=null;
+// In admin previews, public navigation/actions are intentionally inert. Editing controls remain active.
+document.addEventListener('click',function(e){
+  const allowed=e.target.closest('.preview-edit,.page-model-expand,.mrar-model-expand,.artect-ann-menu-toggle,.artect-ann-item,.artect-ann-hotspot,.artect-ann-fullscreen-toggle,.artect-ann-fullscreen-close,.inline-edit-icon,.inline-local-actions,.inline-drag-handle,.inline-scenario-delete');
+  if(allowed)return;
+  const actionable=e.target.closest('a,button');
+  if(actionable){e.preventDefault();e.stopImmediatePropagation();}
+},true);
+const post=(type,payload)=>parent.postMessage(Object.assign({type},payload||{}),'*');
+function removeControls(root){root.querySelectorAll('.inline-edit-icon,.inline-reorder-note,.inline-drag-handle,.inline-local-actions,.inline-scenario-delete').forEach(x=>x.remove());root.querySelectorAll('[draggable="true"]').forEach(x=>x.removeAttribute('draggable'));root.querySelectorAll('[data-inline-bound]').forEach(x=>delete x.dataset.inlineBound)}
+function add(el,kind,field,card){if(!el||el.dataset.inlineBound)return;el.dataset.inlineBound='1';el.dataset.inlineKey=field;const b=document.createElement('button');b.type='button';b.className='inline-edit-icon';b.textContent=kind==='text'?'✎':kind==='image'?'▧':'◈';b.title=kind==='text'?'ویرایش متن':kind==='image'?'انتخاب تصویر':'انتخاب آیکون';b.onclick=e=>{e.preventDefault();e.stopPropagation();post('inline-field',{sectionId:activeSection?.dataset.sectionId||null,cardId:card?.dataset.cardId||null,teamId:card?.dataset.teamId||null,kind,field,html:kind==='text'?el.innerHTML:'',src:kind!=='text'?el.getAttribute('src'):''})};el.parentElement.style.position=el.parentElement.style.position||'relative';el.insertAdjacentElement('afterend',b)}
+function annotateCard(card){
+ const imgs=[...card.querySelectorAll('img')];const iconImg=imgs.find(x=>x.classList.contains('icon-clean'));if(iconImg)add(iconImg,'icon','icon',card);else if(imgs[0])add(imgs[0],'image','image',card);
+ const hs=[...card.querySelectorAll('h1,h2,h3')];if(hs[0])add(hs[0],'text','title',card);if(hs[1])add(hs[1],'text','subtitle',card);
+ const ps=[...card.querySelectorAll('p')];if(ps[0])add(ps[0],'text','short_desc',card);if(ps[1])add(ps[1],'text','full_desc',card);
+ const links=[...card.querySelectorAll('a')];const scenario=card.closest('.home-scenarios,.scenarios');if(scenario&&links[0])add(links[0],'solution-link','link',card);
+ if(scenario){
+   const del=document.createElement('button');del.type='button';del.className='inline-scenario-delete';del.textContent='حذف کارت';del.title='حذف این کارت سناریو';del.onclick=e=>{e.preventDefault();e.stopPropagation();const currentPage=document.querySelector('.page-shell')?.dataset.pageSlug||'';if(confirm('این کارت سناریو حذف شود؟'))post('delete-scenario',{cardId:card.dataset.cardId,sectionId:activeSection?.dataset.sectionId||null,cardType:currentPage==='home'?'scenario_home':(currentPage==='artect'?'scenario_artect':'scenario_mrar')});};
+   card.appendChild(del);
+ }
+}
+function enableReorder(sec,page,scope,cardType){const host=scope||sec;const cards=[...host.children].filter(x=>x.matches('[data-card-id],[data-team-id]'));if(!cards.length)return;const note=document.createElement('div');note.className='inline-reorder-note';note.textContent='برای تغییر ترتیب، فقط دستگیره ⠿ را بگیرید.';host.appendChild(note);cards.forEach(c=>{c.setAttribute('draggable','true');const h=document.createElement('span');h.className='inline-drag-handle';h.textContent='⠿';c.style.position='relative';c.prepend(h);c.addEventListener('dragstart',()=>c.classList.add('inline-dragging'));c.addEventListener('dragover',e=>{e.preventDefault();const d=host.querySelector('.inline-dragging');if(!d||d===c)return;const r=c.getBoundingClientRect();host.insertBefore(d,e.clientY<r.top+r.height/2?c:c.nextElementSibling)});c.addEventListener('dragend',()=>{c.classList.remove('inline-dragging');const ids=[...host.children].filter(x=>x.matches('[data-card-id]')).map(x=>x.dataset.cardId);const tids=[...host.children].filter(x=>x.matches('[data-team-id]')).map(x=>x.dataset.teamId);if(page==='team')post('inline-reorder',{kind:'team',ids:tids});else post('inline-reorder',{kind:'card',card_type:cardType,ids})})})}
+function annotate(sec){removeControls(sec);const page=document.querySelector('.page-shell')?.dataset.pageSlug||'';const key=sec.dataset.sectionKey||'';const restricted=(page==='home'||page==='artect'||page==='mr-ar')&&['home-solutions','home-capabilities','home-projects','solutions','capabilities','projects'].includes(key);
+ const listOnly=['solutions','features','experiences','team'].includes(page)&&sec.querySelector('[data-card-id],[data-team-id]');
+ const isHero=sec===document.querySelector('[data-section-id]');
+ if(listOnly&&!isHero){enableReorder(sec,page);return}
+ // all section-owned visible text/media
+ const titles=sec.querySelectorAll(':scope > h1,:scope > h2,.hero-copy h1,.section-head h2,.final-pair h2,.split-summary h2,.inner-hero h1');if(titles[0])add(titles[0],'text','title');
+ const bodies=sec.querySelectorAll(':scope > p,.hero-copy .lead,.section-head p,.split-summary .lead,.inner-hero .lead');if(bodies[0])add(bodies[0],'text','body');
+ sec.querySelectorAll(':scope > img,.hero-img,.summary-img,.solution-large-image,.final-image,.inner-hero-image,.page-model-frame').forEach(media=>{if(media.closest('[data-card-id]'))return;const isModel=media.classList.contains('page-model-frame');add(media,isModel?'model':'image',isModel?'image':'image')});
+ if(restricted){return}
+ sec.querySelectorAll('[data-card-id],[data-team-id]').forEach(annotateCard);
+ // all remaining visible text not inside cards
+ sec.querySelectorAll('h1,h2,h3,p,a.btn,a.text-link,.brand-placeholder,.central-placeholder').forEach(el=>{if(el.closest('[data-card-id],[data-team-id]')||el.classList.contains('preview-edit')||el.dataset.inlineBound)return;add(el,'text','__inline:'+pathKey(el))});
+ // Scenario cards: editable cards + order + link selection. Artect and Mr.AR use the same inline editor.
+ if((page==='home'&&key==='home-scenarios') || ((page==='artect'||page==='mr-ar')&&key==='scenarios')){
+   const host=sec.querySelector('.scenario-grid')||sec;
+   enableReorder(sec,page,host,page==='home'?'scenario_home':(page==='artect'?'scenario_artect':'scenario_mrar'));
+ };
+}
+function compileRichPreviewHtml(html){
+ const box=document.createElement('div');box.innerHTML=String(html||'');
+ const safeUrl=u=>/^(https?:\/\/|\/|#|mailto:|tel:)/i.test(String(u||'').trim())?String(u).trim():'#';
+ const walker=document.createTreeWalker(box,NodeFilter.SHOW_TEXT),nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+ nodes.forEach(node=>{const parent=node.parentElement;if(!parent||/^(SCRIPT|STYLE|TEXTAREA)$/i.test(parent.tagName))return;const text=node.nodeValue||'',re=/(\[[^\[\]\n]+\]|\{[^{}\n|]+\|\|[^{}\n|]+\}|\{[^{}\n|]+\|[^{}\n|]+\})/g;let last=0,m,frag=document.createDocumentFragment(),changed=false;while((m=re.exec(text))){changed=true;if(m.index>last)frag.appendChild(document.createTextNode(text.slice(last,m.index)));const token=m[0];if(token[0]==='['){const el=document.createElement('span');el.className='rich-box';el.textContent=token.slice(1,-1);frag.appendChild(el);}else{const body=token.slice(1,-1),isButton=body.includes('||'),sep=isButton?'||':'|',cut=body.indexOf(sep),el=document.createElement('a');el.className=isButton?'rich-button':'rich-link';el.href=safeUrl(body.slice(cut+sep.length));el.textContent=body.slice(0,cut);frag.appendChild(el);}last=m.index+token.length;}if(changed){if(last<text.length)frag.appendChild(document.createTextNode(text.slice(last)));node.parentNode.replaceChild(frag,node);}});return box.innerHTML;
+}
+function pathKey(el){const parts=[];let n=el;while(n&&n!==document.body&&parts.length<5){let i=0,x=n;while((x=x.previousElementSibling))i++;parts.unshift(n.tagName.toLowerCase()+'.'+(n.className||'').toString().split(' ').filter(Boolean).slice(0,2).join('.')+'#'+i);n=n.parentElement}return parts.join('/')}
+function localActions(sec){const bar=document.createElement('div');bar.className='inline-local-actions';const pageSlug=document.querySelector('.page-shell')?.dataset.pageSlug||'';const isScenario=(pageSlug==='home'&&sec.classList.contains('home-scenarios'))||((pageSlug==='artect'||pageSlug==='mr-ar')&&sec.classList.contains('scenarios'));bar.innerHTML='<span>این بخش در حالت ویرایش است.</span>'+(isScenario?'<button type="button" class="btn ghost" data-local="add-scenario">+ افزودن کارت سناریو</button>':'')+'<div><button type="button" class="btn primary" data-local="save">ذخیره</button><button type="button" class="btn ghost" data-local="cancel">انصراف</button></div>';sec.insertBefore(bar,sec.firstChild);bar.querySelector('[data-local="save"]').onclick=()=>post('inline-save-request');bar.querySelector('[data-local="cancel"]').onclick=()=>post('inline-cancel-request');bar.querySelector('[data-local="add-scenario"]')?.addEventListener('click',()=>post('add-scenario',{sectionId:sec.dataset.sectionId||null,cardType:pageSlug==='home'?'scenario_home':(pageSlug==='artect'?'scenario_artect':'scenario_mrar')}))} 
+window.addEventListener('message',e=>{
+ if(e.data?.type==='enter-inline-section'){document.querySelectorAll('[data-section-id]').forEach(s=>{s.classList.remove('inline-editing');removeControls(s)});activeSection=document.querySelector('[data-section-id="'+e.data.id+'"]');if(activeSection){activeSection.dataset.sectionKey=e.data.key||'';activeSection.classList.add('inline-editing');annotate(activeSection);localActions(activeSection)}}
+ if(e.data?.type==='inline-text-preview'||e.data?.type==='inline-asset-preview'){const sec=document.querySelector('[data-section-id="'+e.data.sectionId+'"]');if(!sec)return;let root=e.data.cardId?sec.querySelector('[data-card-id="'+e.data.cardId+'"]'):e.data.teamId?sec.querySelector('[data-team-id="'+e.data.teamId+'"]'):sec;let el=root?.querySelector('[data-inline-key="'+CSS.escape(e.data.field||'')+'"]');if(!el&&e.data.field==='link')el=root?.querySelector('a');if(e.data.kind==='model'){if(el){const frame=el.classList.contains('page-model-frame')?el:el.closest('.page-model-frame')||el;frame.classList.add('page-model-frame');if(e.data.backgroundUrl)frame.style.setProperty('--model-bg-url','url(\''+e.data.backgroundUrl+'\')');else frame.style.removeProperty('--model-bg-url');if(e.data.backgroundWidth&&e.data.backgroundHeight)frame.style.setProperty('--model-bg-ratio',e.data.backgroundWidth+'/'+e.data.backgroundHeight);else frame.style.removeProperty('--model-bg-ratio');frame.innerHTML='<model-viewer class="page-model-viewer" autoplay src="'+e.data.url+'" camera-controls disable-pan disable-zoom auto-rotate auto-rotate-delay="0" rotation-per-second="12deg" camera-orbit="auto auto auto" alt="مدل سه‌بعدی"></model-viewer><button type="button" class="page-model-expand" onclick="openPageModel(this)" aria-label="نمایش بزرگ مدل سه‌بعدی">⛶</button>';}}else if(e.data.kind==='image'||e.data.kind==='icon'){if(el?.classList.contains('page-model-frame'))el.innerHTML='<img class=\"page-model-image\" src=\"'+e.data.url+'\" alt=\">';else if(el?.tagName==='IMG')el.src=e.data.url;else{const img=[...root.querySelectorAll('img')].find(x=>e.data.field==='icon'?x.classList.contains('icon-clean'):true);if(img)img.src=e.data.url}}else if(e.data.kind==='solution-link'||(e.data.field==='link'&&e.data.solutionTitle)){const a=root?.querySelector('a');if(a){a.href=e.data.url;a.textContent='مشاهده راهکار ←'}}else if(el)el.innerHTML=compileRichPreviewHtml(e.data.html||'');}
+ if(e.data?.type==='exit-inline-section'){document.querySelectorAll('[data-section-id]').forEach(removeControls);document.querySelectorAll('[data-section-id]').forEach(s=>s.classList.remove('inline-editing'));activeSection=null}
+});
+})();</script>{% endif %}
+
+{% endblock %} 

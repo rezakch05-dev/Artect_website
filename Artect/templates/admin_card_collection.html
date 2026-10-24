@@ -1,0 +1,90 @@
+{% extends 'admin_layout.html' %}{% block admin_content %}
+<div class="admin-head"><div><span class="eyebrow">مدیریت کارت</span><h1>{{title}}</h1><p>{{description}}</p></div></div>
+
+{% if collection == 'scenario' %}
+<form class="upload-box" method="post" enctype="multipart/form-data" action="/admin/card-create">
+  <h2>افزودن کارت سناریو</h2>
+  <input type="hidden" name="card_type" value="scenario_artect">
+  <div class="formgrid">
+    <label>عنوان<input name="title" required></label>
+    <label class="full">توضیح کوتاه<input name="short_desc"></label>
+    <label class="full">تصویر
+      <div class="asset-trigger" onclick="openAssetPicker('image','newScenarioImage','newScenarioImagePreview','newScenarioImageName')"><img id="newScenarioImagePreview" src="/images/placeholder-scenario.png" alt=""><span id="newScenarioImageName">انتخاب تصویر</span></div>
+      <input type="hidden" id="newScenarioImage" name="image" value="placeholder-scenario.png">
+    </label>
+    <label>لینک راهکار<input name="link" placeholder="در صورت نیاز"></label>
+  </div>
+  <div class="management-controls"><label class="check"><input type="checkbox" name="enabled" checked> فعال</label><label class="check"><input type="checkbox" name="show_artect" checked> نمایش در Artect</label></div>
+  <button class="btn primary">افزودن کارت سناریو</button>
+</form>
+{% elif collection == 'solution' %}
+<form class="upload-box" method="post" enctype="multipart/form-data" action="/admin/card-create">
+  <h2>افزودن کارت راهکار</h2>
+  <input type="hidden" name="card_type" value="solution">
+  <div class="formgrid">
+    <label>عنوان<input name="title" required></label>
+    <label>زیرعنوان<input name="subtitle"></label>
+    <label>توضیح کوتاه<input name="short_desc"></label>
+    <label>برچسب<input name="tag" value="Artect"></label>
+    <label class="full">توضیحات کامل<textarea name="full_desc"></textarea></label>
+    <label>لینک<input name="link" placeholder="در صورت نیاز"></label>
+    <label>ویدئو<input type="file" name="video_file" accept="video/mp4,video/webm,video/quicktime,video/x-m4v" multiple><small class="muted">در صورت انتخاب، ویدئو بعد از توضیحات کامل کارت نمایش داده می‌شود.</small></label>
+    <label class="full">تصویر
+      <div class="asset-trigger" onclick="openAssetPicker('image','newSolutionImage','newSolutionImagePreview','newSolutionImageName')"><img id="newSolutionImagePreview" src="/images/placeholder-solution.png" alt=""><span id="newSolutionImageName">انتخاب تصویر</span></div>
+      <input type="hidden" id="newSolutionImage" name="image" value="placeholder-solution.png">
+    </label>
+    <label>آیکون
+      <div class="asset-trigger icon-trigger" onclick="openAssetPicker('icon','newSolutionIcon','newSolutionIconPreview','newSolutionIconName')"><img id="newSolutionIconPreview" src="/icons/placeholder-icon.svg" alt=""><span id="newSolutionIconName">انتخاب آیکون</span></div>
+      <input type="hidden" id="newSolutionIcon" name="icon" value="placeholder-icon.svg">
+    </label>
+  </div>
+  <div class="management-controls"><label class="check"><input type="checkbox" name="enabled" checked> فعال</label><label class="check"><input type="checkbox" name="show_home"> صفحه اصلی</label><label class="check"><input type="checkbox" name="show_artect"> Artect</label><label class="check"><input type="checkbox" name="show_mrar"> Mr.AR</label></div>
+  <button class="btn primary">افزودن کارت راهکار</button>
+</form>
+{% else %}
+<form class="upload-box" method="post" enctype="multipart/form-data" action="/admin/card-create">
+  <h2>افزودن کارت قابلیت</h2>
+  <div class="formgrid">
+    <label>نوع کارت<select name="card_type"><option value="main_capability">قابلیت اصلی</option><option value="supp_capability">قابلیت تکمیلی</option></select></label>
+    <label>عنوان<input name="title" required></label>
+    <label class="full">توضیح<input name="short_desc"></label>
+    <label>آیکون
+      <div class="asset-trigger icon-trigger" onclick="openAssetPicker('icon','newCapabilityIcon','newCapabilityIconPreview','newCapabilityIconName')"><img id="newCapabilityIconPreview" src="/icons/placeholder-icon.svg" alt=""><span id="newCapabilityIconName">انتخاب آیکون</span></div>
+      <input type="hidden" id="newCapabilityIcon" name="icon" value="placeholder-icon.svg">
+    </label>
+  </div>
+  <div class="management-controls"><label class="check"><input type="checkbox" name="enabled" checked> فعال</label><label class="check"><input type="checkbox" name="show_home"> صفحه اصلی</label><label class="check"><input type="checkbox" name="show_artect"> Artect</label><label class="check"><input type="checkbox" name="show_mrar"> Mr.AR</label></div>
+  <button class="btn primary">افزودن کارت قابلیت</button>
+</form>
+{% endif %}
+
+<div class="inline-card-library" data-card-collection="{{collection}}">
+{% for c in cards %}
+<article class="admin-card-preview entity-preview-card" data-entity-type="card" data-entity-id="{{c.id}}">
+  {% if collection == 'scenario' %}
+  <div class="admin-card-preview-media"><img data-entity-field="image" src="{{c.image|asset_url or '/images/placeholder-scenario.png'}}" alt=""></div>
+  <div class="admin-card-preview-copy"><span class="badge">سناریوی Artect</span><h2 data-entity-field="title">{{c.title|safe}}</h2><p data-entity-field="short_desc">{{c.short_desc|safe}}</p></div>
+  {% elif collection == 'solution' %}
+  <div class="admin-card-preview-media"><img data-entity-field="image" src="{{c.image|asset_url or '/images/placeholder-solution.png'}}" alt=""></div>
+  <div class="admin-card-preview-copy"><div class="card-preview-icon"><img data-entity-field="icon" class="icon-clean" src="{{c.icon|asset_url or '/icons/placeholder-icon.svg'}}" alt=""></div><span class="badge" data-entity-field="tag">{{c.tag or 'Artect'}}</span><h2 data-entity-field="title">{{c.title|safe}}</h2><p data-entity-field="subtitle">{{c.subtitle|safe}}</p><p data-entity-field="short_desc">{{c.short_desc|safe}}</p><p class="muted" data-entity-field="full_desc">{{c.full_desc|safe}}</p></div>
+  {% else %}
+  <div class="admin-card-preview-copy capability-preview"><div class="card-preview-icon"><img data-entity-field="icon" class="icon-clean" src="{{c.icon|asset_url or '/icons/placeholder-icon.svg'}}" alt=""></div><span class="badge">{{'قابلیت اصلی' if c.card_type=='main_capability' else 'قابلیت تکمیلی'}}</span><h2 data-entity-field="title">{{c.title|safe}}</h2><p data-entity-field="short_desc">{{c.short_desc|safe}}</p></div>
+  {% endif %}
+  
+  <div class="inline-card-actions"><button type="button" class="btn primary card-inline-edit" data-card-id="{{c.id}}">ویرایش این بخش</button><form method="post" action="/admin/card/{{c.id}}/delete" onsubmit="return confirm('این کارت حذف شود؟')"><button class="btn danger">حذف کارت</button></form></div>
+</article>
+{% else %}<div class="adminbox"><p>هنوز کارتی ثبت نشده است.</p></div>{% endfor %}
+</div>
+
+<div class="card-management-section">
+  <div class="section-head"><div><h2>نمایش و ترتیب</h2><p>ترتیب فقط با دستگیره ⠿ تغییر می‌کند؛ فعال‌سازی و نمایش هر کارت نیز فقط از همین بخش انجام می‌شود.</p></div></div>
+  <div id="cardCollectionList" class="sortable-list management-list" data-sort-endpoint="/admin/card-collection-reorder" data-card-type="{{ 'solution' if collection == 'solution' else ('scenario_artect' if collection == 'scenario' else 'all_capabilities') }}">
+  {% for c in cards %}<div class="management-item draggable-row" data-id="{{c.id}}"><div class="management-main"><span class="drag-handle">⠿</span><div><strong>{{c.title}}</strong><small>{{c.card_type}}</small></div></div><form method="post" enctype="multipart/form-data" action="/admin/card/{{c.id}}/visibility" class="management-controls">
+    <input type="hidden" name="card_type" value="{{c.card_type}}"><input type="hidden" name="title" value="{{c.title}}"><input type="hidden" name="subtitle" value="{{c.subtitle}}"><input type="hidden" name="short_desc" value="{{c.short_desc}}"><input type="hidden" name="full_desc" value="{{c.full_desc}}"><input type="hidden" name="image" value="{{c.image}}"><input type="hidden" name="icon" value="{{c.icon}}"><input type="hidden" name="link" value="{{c.link}}"><input type="hidden" name="tag" value="{{c.tag}}"><input type="hidden" name="video" value="{{c.video}}"><input type="hidden" name="slug" value="{{c.slug}}">
+    <label class="check"><input type="checkbox" name="enabled" {% if c.enabled %}checked{% endif %}> فعال</label><label class="check"><input type="checkbox" name="show_home" {% if c.show_home %}checked{% endif %}> صفحه اصلی</label><label class="check"><input type="checkbox" name="show_artect" {% if c.show_artect %}checked{% endif %}> Artect</label><label class="check"><input type="checkbox" name="show_mrar" {% if c.show_mrar %}checked{% endif %}> Mr.AR</label><button class="btn ghost">ذخیره وضعیت</button>
+  </form></div>{% endfor %}
+  </div>
+</div>
+
+<div id="assetModal" class="modal"><div class="modal-card asset-modal"><button class="modal-close" type="button" onclick="closeAssetPicker()">×</button><h2 id="assetModalTitle">انتخاب</h2><div id="assetGrid" class="asset-picker-grid"></div></div></div>
+{% endblock %}

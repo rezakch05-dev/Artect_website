@@ -1,0 +1,22 @@
+{% extends 'admin_layout.html' %}
+{% block admin_content %}
+<div class="admin-head"><div><span class="eyebrow">رسانه</span><h1>مدل‌های سه‌بعدی</h1><p>هر مدل سه‌بعدی همراه با یک تصویر پس‌زمینه مدیریت می‌شود. تصویر پس‌زمینه، نسبت ابعاد کادر رندر مدل را تعیین می‌کند.</p></div></div>
+<form class="upload-box model-upload-box" method="post" action="/admin/media/upload/model" enctype="multipart/form-data">
+  <div class="model-upload-grid">
+    <label>فایل مدل سه‌بعدی GLB<input type="file" name="file" accept=".glb,model/gltf-binary" required multiple></label>
+    <label>تصویر پس‌زمینه مدل<input type="file" name="background" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" required multiple></label>
+  </div>
+  <p class="model-upload-note">ابعاد کادر نمایش مدل بر اساس نسبت ابعاد همین تصویر ساخته می‌شود. مدل داخل کادر به‌صورت خودکار Fit می‌شود؛ کاربر فقط می‌تواند مدل را بچرخاند و Zoom یا Pan غیرفعال است.</p>
+  <button class="btn primary">آپلود مدل و پس‌زمینه</button>
+</form>
+<div class="asset-library model-library">
+{% for m in media %}
+  <article class="asset-card model-asset">
+    <div class="model-file-preview" {% if m.background_filename %}style="background-image:url('{{url_for('serve_image',filename=m.background_filename)}}');"{% endif %}><span>3D</span></div>
+    <div class="model-file-meta"><strong title="{{m.filename}}">{{m.filename}}</strong>{% if m.background_filename %}<small>{{m.background_width}} × {{m.background_height}} px</small>{% else %}<small class="model-no-bg">بدون پس‌زمینه</small>{% endif %}</div>
+    <form class="model-bg-form" method="post" action="/admin/media/model/{{m.id}}/background" enctype="multipart/form-data"><label class="btn ghost model-bg-label">تغییر پس‌زمینه<input type="file" name="background" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" required onchange="this.form.submit()" multiple></label></form>
+    <form method="post" action="/admin/media/{{m.id}}/delete" onsubmit="return confirm('این مدل و تصویر پس‌زمینه آن حذف شود؟')"><button class="btn danger">حذف مدل</button></form>
+  </article>
+{% else %}<p>هنوز مدل سه‌بعدی آپلود نشده است.</p>{% endfor %}
+</div>
+{% endblock %}

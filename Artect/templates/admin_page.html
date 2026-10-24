@@ -1,0 +1,163 @@
+{% extends 'admin_layout.html' %}{% block admin_content %}<div class="admin-head"><div><span class="eyebrow">صفحه</span><h1>{{page_data['title']}}</h1><p>پیش‌نمایش از خود سایت خوانده می‌شود؛ برای هر بخش گزینه «ویرایش این بخش» قرار دارد.</p></div><a class="btn primary" target="_blank" href="{{'/' if page_data['slug']=='home' else '/'+page_data['slug']}}">باز کردن سایت</a></div><div class="preview-shell"><div class="preview-toolbar"><strong>پیش‌نمایش کامل صفحه</strong><span>برای ویرایش هر بخش روی دکمه گوشه همان بخش بزنید.</span></div><iframe id="sitePreview" src="{{'/' if page_data['slug']=='home' else '/'+page_data['slug']}}?admin_preview=1"></iframe></div><details class="advanced-box"><summary>تنظیمات صفحه و مدیریت ترتیب بخش‌ها</summary><form method="post" class="formgrid"><label>عنوان<input name="title" value="{{page_data['title']}}"></label><label>Slug<input name="slug" value="{{page_data['slug']}}"></label><label class="full">توضیحات SEO<textarea name="seo_description">{{page_data['seo_description']}}</textarea></label><label><input type="checkbox" name="enabled" {% if page_data['enabled'] %}checked{% endif %}> فعال</label><button class="btn primary">ذخیره صفحه</button></form><div id="pageSectionList" class="reorder-list sortable-list vertical-sortable" data-page-id="{{page_data['id']}}"><h3>ترتیب بخش‌ها</h3>{% for s in sections %}<div class="draggable-row reorder-item" data-id="{{s['id']}}"><span class="drag-handle">⠿</span><span>{{s['title'] or s['section_key']}}</span></div>{% endfor %}</div></details><div id="editorModal" class="modal"><div class="modal-card editor-modal"><button class="modal-close" type="button" onclick="closeEditor()">×</button><div class="editor-modal-head"><h2>ویرایش بخش</h2><p class="muted">محتوا، رسانه و دکمه‌های این بخش را از همین‌جا ویرایش کنید.</p></div><form id="sectionForm"><input type="hidden" name="section_id"><input type="hidden" name="section_key"><input type="hidden" name="sort_order" value="0"><section class="editor-group"><div class="editor-group-title"><strong>متن بخش</strong><span>عنوان و متن اصلی</span></div><div class="editor-field"><label>عنوان</label><div id="titleEditor" class="rich-editor rich-editor-title" contenteditable="true" dir="rtl"></div><textarea name="title" id="titleValue" hidden></textarea></div><div class="editor-field"><label>متن</label><div class="rich-editor-wrap"><div class="rich-editor-bar"><button type="button" onclick="openTextTools()">Aa تنظیم متن</button><button type="button" onclick="insertRichSyntax('box')">▣ کادر</button><button type="button" onclick="insertRichSyntax('link')">🔗 هایپرلینک</button><button type="button" onclick="insertRichSyntax('button')">▣ دکمه</button><button type="button" onclick="formatText('justifyRight')">راست</button><button type="button" onclick="formatText('justifyCenter')">وسط</button><button type="button" onclick="formatText('justifyLeft')">چپ</button><button type="button" onclick="formatText('bold')"><b>B</b></button><button type="button" onclick="formatText('italic')"><i>I</i></button><button type="button" onclick="formatText('underline')"><u>U</u></button><button type="button" onclick="formatText('removeFormat')">پاک کردن قالب</button></div><div id="bodyEditor" class="rich-editor" contenteditable="true" dir="rtl"></div><textarea name="body" id="bodyValue" hidden></textarea><div class="rich-options-guide"><div class="rich-option-guide"><div><strong>کادر متنی</strong><span><code>[متن]</code> در زمان نمایش به یک کادر متناسب با متن تبدیل می‌شود.</span></div><button type="button" class="btn ghost" onclick="insertRichSyntax('box')">افزودن کادر</button></div><div class="rich-option-guide"><div><strong>هایپرلینک</strong><span><code>{متن|link}</code> در زمان نمایش به لینک با رنگ تم سایت تبدیل می‌شود. با زدن دکمه، لینک در پنجره جداگانه وارد می‌شود.</span></div><button type="button" class="btn ghost" onclick="insertRichSyntax('link')">افزودن هایپرلینک</button></div><div class="rich-option-guide"><div><strong>دکمه</strong><span><code>{متن||link}</code> در زمان نمایش به دکمه با رنگ تم سایت تبدیل می‌شود. با زدن دکمه، لینک در پنجره جداگانه وارد می‌شود.</span></div><button type="button" class="btn ghost" onclick="insertRichSyntax('button')">افزودن دکمه</button></div></div></div></div></section><section class="editor-group"><div class="editor-group-title"><strong>رسانه</strong><span>تصویر و آیکون</span></div><div class="editor-media-grid"><div class="asset-field"><label>تصویر</label><div class="asset-trigger" id="imageTrigger" onclick="openAssetPicker('page-media','sectionImageField','imagePreview','imageName')"><div id="imagePreviewHost"><img id="imagePreview" src="/images/placeholder-card.png" alt=""></div><span id="imageName">انتخاب تصویر یا مدل سه‌بعدی</span></div><input type="hidden" id="sectionImageField" name="image"></div><div class="asset-field"><label>آیکون</label><div class="asset-trigger icon-trigger" id="iconTrigger" onclick="openAssetPicker('icon')"><img id="iconPreview" src="/icons/placeholder-icon.svg"><span id="iconName">انتخاب آیکون</span></div><input type="hidden" name="icon"></div></div></section><section class="editor-group"><div class="editor-group-title"><strong>دکمه و وضعیت</strong><span>در صورت نیاز</span></div><div class="editor-fields-grid"><label>متن دکمه<input name="button_text"></label><label>لینک دکمه<input name="button_url"></label></div><label class="editor-checkbox"><input type="checkbox" name="enabled" checked> فعال</label></section><div class="modal-actions editor-actions"><button class="btn primary" type="submit">ذخیره تغییرات</button><button class="btn ghost" type="button" onclick="closeEditor()">انصراف</button></div></form></div></div><div id="textToolsModal" class="modal"><div class="modal-card text-tools"><button class="modal-close" onclick="closeTextTools()">×</button><h2>تنظیم متن</h2><p class="muted">بخشی از متن را در ویرایشگر انتخاب کنید، سپس فونت، اندازه یا رنگ آن را تغییر دهید.</p><div class="text-tool-grid"><label>فونت<select id="fontName"><option value="Tahoma">Tahoma</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Verdana">Verdana</option><option value="Times New Roman">Times New Roman</option></select></label><label>اندازه<select id="fontSize"><option value="1">خیلی کوچک</option><option value="2">کوچک</option><option value="3" selected>متوسط</option><option value="4">بزرگ</option><option value="5">خیلی بزرگ</option><option value="6">بسیار بزرگ</option></select></label><label>رنگ متن<input id="fontColor" type="color" value="#111111"></label></div><div class="inline-syntax-guide"><strong>راهنمای ابزارهای متن</strong><div>ابتدا متن را انتخاب کنید، سپس یکی از دکمه‌های <b>کادر</b>، <b>هایپرلینک</b> یا <b>دکمه</b> را بزنید تا قالب به‌صورت خودکار به همان متن اعمال شود.</div><div>برای فونت، سایز و رنگ نیز ابتدا متن را انتخاب کنید و سپس <b>اعمال قالب</b> را بزنید.</div><div class="syntax-compat"><small>این فرمت‌ها به‌صورت رشتهٔ متنی در ویرایشگر و دیتابیس ذخیره می‌شوند و فقط هنگام ارسال HTML به مرورگر تبدیل می‌شوند.</small></div></div><div class="modal-actions"><button class="btn primary" type="button" onclick="applyTextTools()">اعمال قالب</button><button class="btn ghost" type="button" onclick="closeTextTools()">بستن</button></div></div></div><script>window.PAGE_ID={{page_data['id']}};window.PAGE_SLUG='{{page_data['slug']}}';document.addEventListener('DOMContentLoaded',()=>{bindRichEditor(document.getElementById('titleEditor'));bindRichEditor(document.getElementById('bodyEditor'));document.getElementById('sectionForm')?.addEventListener('submit',()=>{notifyRichEditorChange();document.getElementById('titleValue').value=document.getElementById('titleEditor').innerHTML;document.getElementById('bodyValue').value=document.getElementById('bodyEditor').innerHTML;});});</script>
+{% if page_data['slug']=='artect' %}
+<div id="artectAnnotationManagerModal" class="modal"><div class="modal-card artect-ann-admin-modal"><button class="modal-close" type="button" onclick="closeArtectAnnotationManager()">×</button><h2>مدیریت کارت‌های مدل و Annotation</h2><p class="muted">برای هر کارت، بارگذاری فایل مدل GLB الزامی است. فایل Annotation از نوع JSON یا ZIP اختیاری است؛ اگر انتخاب نشود، مدل بدون Annotation نمایش داده می‌شود. فایل Annotation انتخاب‌شده باید مربوط به همان GLB باشد.</p>
+<div id="artectAnnotationCardList" class="showcase-admin-list"></div>
+<div class="showcase-admin-actions"><button type="button" class="btn primary" onclick="newArtectAnnotationCard()">＋ افزودن کارت جدید</button><button type="button" class="btn ghost" onclick="closeArtectAnnotationManager()">بستن</button></div>
+<form id="artectAnnotationCardForm" class="showcase-admin-form" hidden enctype="multipart/form-data">
+<h3 id="artectAnnotationFormHeading">کارت جدید</h3><input type="hidden" name="id">
+<label>عنوان کارت (فقط برای مدیریت)<input name="title" maxlength="300" placeholder="مثلاً معرفی محصول یا پروژه"></label>
+<label>مدل سه‌بعدی GLB<input type="file" name="model" accept=".glb,model/gltf-binary"></label>
+<label>فایل Annotation JSON یا ZIP<input type="file" name="annotations" accept=".json,.zip,application/json,application/zip"></label>
+<p id="artectAnnotationCurrentFiles" class="muted">برای کارت جدید فقط فایل مدل GLB الزامی است. فایل Annotation اختیاری است. اگر مدل را بدون فایل Annotation بارگذاری کنید، کارت بدون Annotation ساخته می‌شود.</p>
+<div class="showcase-admin-actions"><button class="btn primary" type="submit">ذخیره کارت</button><button class="btn ghost" type="button" onclick="document.getElementById('artectAnnotationCardForm').hidden=true">انصراف</button></div><p id="artectAnnotationFormError" class="form-error"></p>
+</form></div></div>
+<style>
+.artect-ann-admin-modal{max-width:900px;width:min(94vw,900px)}
+#artectAnnotationCardForm input{background:var(--surface);color:var(--text);border-color:var(--border)}
+#artectAnnotationCardList .showcase-admin-row{align-items:flex-start}
+@media(max-width:650px){ #artectAnnotationCardList .showcase-admin-row{flex-direction:column}#artectAnnotationCardList .showcase-admin-row .actions{width:100%}}
+</style>
+<script>
+let artectAnnotationCardsCache=[];
+function openArtectAnnotationManager(){document.getElementById('artectAnnotationManagerModal')?.classList.add('open');loadArtectAnnotationCards();}
+function closeArtectAnnotationManager(){document.getElementById('artectAnnotationManagerModal')?.classList.remove('open');}
+async function loadArtectAnnotationCards(){
+ const host=document.getElementById('artectAnnotationCardList');host.textContent='در حال بارگذاری...';
+ try{const r=await fetch('/admin/api/artect-annotations');if(!r.ok)throw new Error('دریافت کارت‌ها ناموفق بود');artectAnnotationCardsCache=await r.json();host.replaceChildren();
+  if(!artectAnnotationCardsCache.length){host.textContent='هنوز کارتی ایجاد نشده است.';return;}
+  artectAnnotationCardsCache.forEach((c,i)=>{const row=document.createElement('div');row.className='showcase-admin-row';const info=document.createElement('div');const name=document.createElement('strong');name.textContent=(i+1)+'. '+(c.title||'کارت بدون نام');const detail=document.createElement('div');detail.className='muted';detail.style.cssText='font-size:.82rem;margin-top:5px;overflow-wrap:anywhere';detail.textContent=(c.model_file||'بدون مدل')+' · '+(Number(c.annotations_count)||0)+' Annotation';info.append(name,detail);const actions=document.createElement('div');actions.className='actions';[['ویرایش',()=>editArtectAnnotationCard(c)],['↑',()=>reorderArtectAnnotationCard(c.id,-1)],['↓',()=>reorderArtectAnnotationCard(c.id,1)],['حذف',()=>deleteArtectAnnotationCard(c.id)]].forEach(([label,fn])=>{const b=document.createElement('button');b.type='button';b.className='btn ghost';b.textContent=label;b.onclick=fn;actions.append(b)});row.append(info,actions);host.append(row);});
+ }catch(e){host.textContent=e.message||'خطا در دریافت کارت‌ها';}
+}
+function newArtectAnnotationCard(){const f=document.getElementById('artectAnnotationCardForm');f.reset();f.elements.id.value='';f.elements.model.required=true;f.elements.annotations.required=false;f.hidden=false;document.getElementById('artectAnnotationFormHeading').textContent='افزودن کارت جدید';document.getElementById('artectAnnotationFormError').textContent='';document.getElementById('artectAnnotationCurrentFiles').textContent='برای کارت جدید فقط مدل GLB الزامی است. فایل Annotation اختیاری است؛ بدون آن کارت صرفاً مدل سه‌بعدی را نمایش می‌دهد.';f.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function editArtectAnnotationCard(c){const f=document.getElementById('artectAnnotationCardForm');f.reset();f.elements.id.value=c.id;f.elements.title.value=c.title||'';f.elements.model.required=false;f.elements.annotations.required=false;f.hidden=false;document.getElementById('artectAnnotationFormHeading').textContent='ویرایش کارت';document.getElementById('artectAnnotationFormError').textContent='';document.getElementById('artectAnnotationCurrentFiles').textContent='مدل فعلی: '+(c.model_file||'نامشخص')+' · '+(Number(c.annotations_count)||0)+' Annotation ذخیره‌شده. برای حفظ فایل‌های فعلی، ورودی‌ها را خالی بگذارید. جایگزینی مدل بدون انتخاب Annotation، کارت را بدون Annotation ذخیره می‌کند.';f.scrollIntoView({behavior:'smooth',block:'nearest'});}
+async function deleteArtectAnnotationCard(id){if(!confirm('این کارت و فایل مدل مرتبط حذف شوند؟'))return;const r=await fetch('/admin/api/artect-annotations/'+id+'/delete',{method:'POST'});if(r.ok)loadArtectAnnotationCards();else alert('حذف کارت انجام نشد.');}
+async function reorderArtectAnnotationCard(id,delta){const arr=[...artectAnnotationCardsCache],i=arr.findIndex(x=>x.id===id),j=i+delta;if(j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];const r=await fetch('/admin/api/artect-annotations-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids:arr.map(x=>x.id)})});if(r.ok)loadArtectAnnotationCards();}
+document.getElementById('artectAnnotationCardForm')?.addEventListener('submit',async e=>{e.preventDefault();const form=e.target,msg=document.getElementById('artectAnnotationFormError');msg.textContent='در حال ذخیره...';try{const r=await fetch('/admin/api/artect-annotations',{method:'POST',body:new FormData(form)});let d={};try{d=await r.json()}catch(_){}if(!r.ok)throw new Error(d.error||'ذخیره انجام نشد');form.hidden=true;await loadArtectAnnotationCards();}catch(err){msg.textContent=err.message||'ذخیره انجام نشد';}});
+window.addEventListener('message',e=>{if(e.data?.type==='edit-artect-annotations')openArtectAnnotationManager();});
+</script>
+{% endif %}
+<div id="showcaseManagerModal" class="modal"><div class="modal-card" style="max-width:900px;width:min(94vw,900px)"><button class="modal-close" type="button" onclick="closeShowcaseManager()">×</button><h2>مدیریت کارت‌های مدل سه‌بعدی</h2><p class="muted">برای هر کارت، فایل GLB و بسته تنظیمات JSON یا ZIP را انتخاب کنید.</p>
+<div id="showcaseCardList" class="showcase-admin-list"></div>
+<div class="showcase-admin-actions"><button type="button" class="btn primary" onclick="newShowcaseCard()">＋ افزودن کارت جدید</button><button type="button" class="btn ghost" onclick="closeShowcaseManager()">بستن</button></div>
+<form id="showcaseCardForm" class="showcase-admin-form" hidden enctype="multipart/form-data">
+<h3 id="showcaseFormHeading">کارت جدید</h3><input type="hidden" name="id">
+<label>نام داخلی کارت (فقط برای مدیریت)<input name="title" placeholder="مثلاً صندلی اداری"></label>
+<label>مدل سه‌بعدی GLB<input type="file" name="model" accept=".glb,model/gltf-binary"></label>
+<label>فایل کانفیگوریشن JSON یا ZIP<input type="file" name="config" accept=".json,.zip,application/json,application/zip"></label>
+<p class="muted">برای حفظ فایل‌های قبلی، هنگام ویرایش فقط فایل‌هایی را انتخاب کنید که قصد جایگزینی آن‌ها را دارید.</p>
+<div class="showcase-admin-actions"><button class="btn primary" type="submit">ذخیره کارت</button><button class="btn ghost" type="button" onclick="document.getElementById('showcaseCardForm').hidden=true">انصراف</button></div><p id="showcaseFormError" class="form-error"></p>
+</form></div></div>
+<style>
+.showcase-admin-list{display:grid;gap:9px;margin:18px 0}.showcase-admin-row{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--card)}.showcase-admin-row strong{overflow-wrap:anywhere}.showcase-admin-row .actions{display:flex;gap:7px;flex-wrap:wrap}.showcase-admin-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.showcase-admin-form{border-top:1px solid var(--border);margin-top:18px;padding-top:18px;display:grid;gap:13px}.showcase-admin-form[hidden]{display:none}.showcase-admin-form label{display:grid;gap:7px}.showcase-admin-form input{width:100%;padding:10px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text)}.form-error{color:var(--error)}
+</style>
+<script>
+let showcaseCardsCache=[];
+function openShowcaseManager(){document.getElementById('showcaseManagerModal').classList.add('open');loadShowcaseCards();}
+function closeShowcaseManager(){document.getElementById('showcaseManagerModal').classList.remove('open');}
+async function loadShowcaseCards(){const host=document.getElementById('showcaseCardList');host.innerHTML='در حال بارگذاری...';try{const r=await fetch('/admin/api/showcase');showcaseCardsCache=await r.json();host.innerHTML='';if(!showcaseCardsCache.length)host.textContent='هنوز کارتی ایجاد نشده است.';showcaseCardsCache.forEach((c,i)=>{const row=document.createElement('div');row.className='showcase-admin-row';const name=document.createElement('strong');name.textContent=(i+1)+'. '+(c.title||'کارت بدون نام');const actions=document.createElement('div');actions.className='actions';[['ویرایش',()=>editShowcaseCard(c)],['↑',()=>reorderShowcase(c.id,-1)],['↓',()=>reorderShowcase(c.id,1)],['حذف',()=>deleteShowcaseCard(c.id)]].forEach(([label,fn])=>{const b=document.createElement('button');b.type='button';b.className='btn ghost';b.textContent=label;b.onclick=fn;actions.append(b)});row.append(name,actions);host.append(row)});}catch(e){host.textContent='خطا در دریافت کارت‌ها';}}
+function newShowcaseCard(){const f=document.getElementById('showcaseCardForm');f.reset();f.elements.id.value='';f.hidden=false;document.getElementById('showcaseFormHeading').textContent='افزودن کارت جدید';document.getElementById('showcaseFormError').textContent='';}
+function editShowcaseCard(c){const f=document.getElementById('showcaseCardForm');f.reset();f.elements.id.value=c.id;f.elements.title.value=c.title||'';f.hidden=false;document.getElementById('showcaseFormHeading').textContent='ویرایش کارت';document.getElementById('showcaseFormError').textContent='';f.scrollIntoView({behavior:'smooth',block:'nearest'});}
+async function deleteShowcaseCard(id){if(!confirm('این کارت و فایل‌های مرتبط حذف شوند؟'))return;const r=await fetch('/admin/api/showcase/'+id+'/delete',{method:'POST'});if(r.ok)loadShowcaseCards();}
+async function reorderShowcase(id,delta){const arr=[...showcaseCardsCache],i=arr.findIndex(x=>x.id===id),j=i+delta;if(j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];for(let n=0;n<arr.length;n++){arr[n].sort_order=n;/* order is persisted through API below */}await fetch('/admin/api/showcase-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids:arr.map(x=>x.id)})});loadShowcaseCards();}
+document.getElementById('showcaseCardForm')?.addEventListener('submit',async e=>{e.preventDefault();const msg=document.getElementById('showcaseFormError');msg.textContent='در حال ذخیره...';try{const r=await fetch('/admin/api/showcase',{method:'POST',body:new FormData(e.target)});const d=await r.json();if(!r.ok)throw new Error(d.error||'ذخیره انجام نشد');e.target.hidden=true;loadShowcaseCards();}catch(err){msg.textContent=err.message;}});
+window.addEventListener('message',e=>{if(e.data?.type==='edit-showcase-section')openShowcaseManager();});
+</script>
+
+<div id="mrarAnimationManagerModal" class="modal">
+  <div class="modal-card" style="max-width:900px;width:min(94vw,900px)">
+    <button class="modal-close" type="button" onclick="closeMrarAnimationManager()">×</button>
+    <h2>مدیریت کارت‌های رندرر Mr.AR</h2>
+    <p class="muted">برای هر کارت یک فایل GLB یا GLTF دارای انیمیشن انتخاب کنید. فرمت GLB به‌دلیل یکپارچگی فایل پیشنهاد می‌شود.</p>
+    <div id="mrarAnimationCardList" class="showcase-admin-list"></div>
+    <div class="showcase-admin-actions"><button type="button" class="btn primary" onclick="newMrarAnimationCard()">＋ افزودن کارت جدید</button><button type="button" class="btn ghost" onclick="closeMrarAnimationManager()">بستن</button></div>
+    <form id="mrarAnimationCardForm" class="showcase-admin-form" hidden enctype="multipart/form-data">
+      <h3 id="mrarAnimationFormHeading">کارت جدید</h3>
+      <input type="hidden" name="id">
+      <label>نام داخلی کارت (فقط برای مدیریت)<input name="title" placeholder="مثلاً مکانیزم چرخ‌دنده"></label>
+      <label>فایل مدل سه‌بعدی با انیمیشن<input id="mrarAnimationModelFile" type="file" name="model" accept=".glb,.gltf,model/gltf-binary,model/gltf+json"></label>
+      <input type="hidden" name="extra_json" id="mrarAnimationExtraJson" value="{}">
+      <p class="muted">در ویرایش کارت، اگر فایل جدیدی انتخاب نکنید، مدل قبلی حفظ می‌شود. پس از بارگذاری مدل، تنظیمات هر انیمیشن در پایین نمایش داده می‌شود.</p>
+      <div class="mrar-admin-animation-preview"><model-viewer id="mrarAnimationAdminPreview" camera-controls disable-pan auto-rotate shadow-intensity="0.5" alt="پیش‌نمایش مدل برای تنظیم انیمیشن"></model-viewer></div>
+      <div id="mrarAnimationSettingsHost" class="mrar-admin-animation-settings"><p class="muted">ابتدا یک مدل دارای انیمیشن انتخاب کنید.</p></div>
+      <div class="showcase-admin-actions"><button class="btn primary" type="submit">ذخیره کارت</button><button class="btn ghost" type="button" onclick="document.getElementById('mrarAnimationCardForm').hidden=true">انصراف</button></div>
+      <p id="mrarAnimationFormError" class="form-error"></p>
+    </form>
+  </div>
+</div>
+<style>
+#mrarAnimationManagerModal .showcase-admin-row{background:var(--card)} 
+#mrarAnimationManagerModal .showcase-admin-form input{background:var(--surface);color:var(--text);border-color:var(--border)}
+.mrar-admin-animation-preview{height:240px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--model-background,#f4f4f4)}
+.mrar-admin-animation-preview model-viewer{width:100%;height:100%;background:var(--model-background,#f4f4f4)}
+.mrar-admin-animation-settings{display:grid;gap:9px}.mrar-admin-animation-row{display:grid;grid-template-columns:minmax(140px,1fr) auto minmax(85px,105px) minmax(85px,105px) minmax(145px,170px);gap:10px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.mrar-admin-animation-row label{display:flex;align-items:center;gap:6px;min-width:0}.mrar-admin-animation-row input[type=number],.mrar-admin-animation-row select{min-width:0;width:100%;max-width:100%}.mrar-admin-animation-row .mrar-anim-enabled{width:auto;flex:0 0 auto}
+@media(max-width:850px){.mrar-admin-animation-row{grid-template-columns:minmax(120px,1fr) auto minmax(75px,1fr) minmax(75px,1fr)}.mrar-admin-animation-row .mrar-anim-mode-label{grid-column:1/-1}.mrar-admin-animation-row .mrar-anim-mode{flex:1}}
+@media(max-width:650px){.mrar-admin-animation-row{grid-template-columns:1fr 1fr}.mrar-admin-animation-row strong{grid-column:1/-1}.mrar-admin-animation-row .mrar-anim-mode-label{grid-column:1/-1}}
+</style>
+<script>
+let mrarAnimationCardsCache=[];
+let mrarAnimationPreviewObjectUrl=null;
+let mrarAnimationPreviewToken=0;
+function openMrarAnimationManager(){document.getElementById('mrarAnimationManagerModal')?.classList.add('open');loadMrarAnimationCards();}
+function closeMrarAnimationManager(){document.getElementById('mrarAnimationManagerModal')?.classList.remove('open');}
+async function loadMrarAnimationCards(){
+  const host=document.getElementById('mrarAnimationCardList');host.innerHTML='در حال بارگذاری...';
+  try{const r=await fetch('/admin/api/mr-ar-animations');if(!r.ok)throw new Error('دریافت کارت‌ها ناموفق بود');mrarAnimationCardsCache=await r.json();host.replaceChildren();
+    if(!mrarAnimationCardsCache.length){host.textContent='هنوز کارتی ایجاد نشده است.';return;}
+    mrarAnimationCardsCache.forEach((c,i)=>{const row=document.createElement('div');row.className='showcase-admin-row';const name=document.createElement('strong');name.textContent=(i+1)+'. '+(c.title||'کارت بدون نام')+' — '+(c.model_file||'بدون فایل');const actions=document.createElement('div');actions.className='actions';
+      [['ویرایش',()=>editMrarAnimationCard(c)],['↑',()=>reorderMrarAnimation(c.id,-1)],['↓',()=>reorderMrarAnimation(c.id,1)],['حذف',()=>deleteMrarAnimationCard(c.id)]].forEach(([label,fn])=>{const b=document.createElement('button');b.type='button';b.className='btn ghost';b.textContent=label;b.onclick=fn;actions.append(b);});row.append(name,actions);host.append(row);});
+  }catch(e){host.textContent=e.message||'خطا در دریافت کارت‌ها';}
+}
+function clearMrarAnimationPreview(){const viewer=document.getElementById('mrarAnimationAdminPreview');viewer.removeAttribute('src');document.getElementById('mrarAnimationSettingsHost').innerHTML='<p class="muted">مدل هنوز بارگذاری نشده است.</p>';}
+function setMrarAnimationPreview(src,settings={}){
+  const viewer=document.getElementById('mrarAnimationAdminPreview'),host=document.getElementById('mrarAnimationSettingsHost');
+  const token=++mrarAnimationPreviewToken;
+  viewer.dataset.settings=JSON.stringify(settings||{});viewer.dataset.settingsBuilt='';
+  host.replaceChildren();const loading=document.createElement('p');loading.className='muted';loading.textContent='در حال خواندن انیمیشن‌های مدل…';host.append(loading);
+  const build=()=>{
+    if(token!==mrarAnimationPreviewToken||viewer.dataset.settingsBuilt==='1'||!viewer.loaded)return;
+    viewer.dataset.settingsBuilt='1';
+    const names=Array.isArray(viewer.availableAnimations)?viewer.availableAnimations:[],saved=(settings&&settings.animations)||{};host.replaceChildren();
+    if(!names.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='این مدل انیمیشنی ندارد. منوی عمومی نیز خالی خواهد بود.';host.append(empty);document.getElementById('mrarAnimationExtraJson').value=JSON.stringify({animations:{}});return;}
+    names.forEach(name=>{
+      const cfg=saved[name]||{enabled:true,speed:1,repetitions:1,mode:'forward'};
+      const row=document.createElement('div');row.className='mrar-admin-animation-row';row.dataset.animationName=name;
+      const title=document.createElement('strong');title.textContent=name;
+      const enableLabel=document.createElement('label');const enabled=document.createElement('input');enabled.type='checkbox';enabled.className='mrar-anim-enabled';enabled.checked=cfg.enabled!==false;enableLabel.append(enabled,document.createTextNode('فعال'));
+      const speedLabel=document.createElement('label');speedLabel.append(document.createTextNode('سرعت'));const speed=document.createElement('input');speed.type='number';speed.min='.1';speed.max='4';speed.step='.1';speed.value=String(Math.min(4,Math.max(.1,Number(cfg.speed)||1)));speed.className='mrar-anim-speed';speedLabel.append(speed);
+      const repsLabel=document.createElement('label');repsLabel.append(document.createTextNode('تعداد اجرا'));const reps=document.createElement('input');reps.type='number';reps.min='1';reps.max='20';reps.step='1';reps.value=String(Math.min(20,Math.max(1,Math.floor(Number(cfg.repetitions)||1))));reps.className='mrar-anim-repetitions';repsLabel.append(reps);
+      const modeLabel=document.createElement('label');modeLabel.className='mrar-anim-mode-label';modeLabel.append(document.createTextNode('نوع تکرار'));const mode=document.createElement('select');mode.className='mrar-anim-mode';
+      [['forward','فقط رفت'],['reverse','فقط برگشت'],['pingpong','رفت‌وبرگشتی']].forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;mode.append(option);});
+      mode.value=['forward','reverse','pingpong'].includes(cfg.mode)?cfg.mode:'forward';modeLabel.append(mode);
+      row.append(title,enableLabel,speedLabel,repsLabel,modeLabel);host.append(row);
+    });
+    host.querySelectorAll('input,select').forEach(input=>input.addEventListener('change',syncMrarAnimationSettings));
+    syncMrarAnimationSettings();
+  };
+  const loadFailed=()=>{
+    if(token!==mrarAnimationPreviewToken)return;
+    host.replaceChildren();const err=document.createElement('p');err.className='form-error';err.textContent='مدل بارگذاری نشد. برای مدل‌های GLTF وابستگی‌های خارجی را بررسی کنید؛ استفاده از GLB پیشنهاد می‌شود.';host.append(err);
+  };
+  // The admin layout loads model-viewer asynchronously. Wait until it is defined,
+  // then attach listeners before assigning src so the first load cannot be missed.
+  if(!window.customElements){loadFailed();return;}
+  customElements.whenDefined('model-viewer').then(()=>{
+    if(token!==mrarAnimationPreviewToken)return;
+    viewer.addEventListener('load',build,{once:true});
+    viewer.addEventListener('error',loadFailed,{once:true});
+    viewer.removeAttribute('src');
+    viewer.src=src;
+    requestAnimationFrame(()=>{if(token===mrarAnimationPreviewToken&&viewer.loaded)build();});
+  }).catch(loadFailed);
+}
+function syncMrarAnimationSettings(){const host=document.getElementById('mrarAnimationSettingsHost'),animations={},rows=host.querySelectorAll('.mrar-admin-animation-row');if(!rows.length)return;rows.forEach(row=>{animations[row.dataset.animationName]={enabled:row.querySelector('.mrar-anim-enabled').checked,speed:Math.min(4,Math.max(.1,Number(row.querySelector('.mrar-anim-speed').value)||1)),repetitions:Math.min(20,Math.max(1,Math.floor(Number(row.querySelector('.mrar-anim-repetitions').value)||1))),mode:row.querySelector('.mrar-anim-mode').value};});document.getElementById('mrarAnimationExtraJson').value=JSON.stringify({animations});}
+function newMrarAnimationCard(){const f=document.getElementById('mrarAnimationCardForm');f.reset();f.elements.id.value='';document.getElementById('mrarAnimationExtraJson').value='{}';f.hidden=false;document.getElementById('mrarAnimationFormHeading').textContent='افزودن کارت جدید';document.getElementById('mrarAnimationFormError').textContent='';clearMrarAnimationPreview();}
+function editMrarAnimationCard(c){const f=document.getElementById('mrarAnimationCardForm');f.reset();f.elements.id.value=c.id;f.elements.title.value=c.title||'';f.hidden=false;document.getElementById('mrarAnimationFormHeading').textContent='ویرایش کارت';document.getElementById('mrarAnimationFormError').textContent='';let settings={};try{settings=JSON.parse(c.extra_json||'{}');}catch(e){}document.getElementById('mrarAnimationExtraJson').value=JSON.stringify(settings);setMrarAnimationPreview('/models/'+encodeURIComponent(c.model_file),settings);f.scrollIntoView({behavior:'smooth',block:'nearest'});}
+async function deleteMrarAnimationCard(id){if(!confirm('این کارت و فایل مدل مرتبط حذف شوند؟'))return;const r=await fetch('/admin/api/mr-ar-animations/'+id+'/delete',{method:'POST'});if(r.ok)loadMrarAnimationCards();}
+async function reorderMrarAnimation(id,delta){const arr=[...mrarAnimationCardsCache],i=arr.findIndex(x=>x.id===id),j=i+delta;if(j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];const r=await fetch('/admin/api/mr-ar-animations-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids:arr.map(x=>x.id)})});if(r.ok)loadMrarAnimationCards();}
+document.getElementById('mrarAnimationModelFile')?.addEventListener('change',e=>{const file=e.target.files?.[0];if(!file)return;if(mrarAnimationPreviewObjectUrl)URL.revokeObjectURL(mrarAnimationPreviewObjectUrl);mrarAnimationPreviewObjectUrl=URL.createObjectURL(file);setMrarAnimationPreview(mrarAnimationPreviewObjectUrl,{});});
+document.getElementById('mrarAnimationCardForm')?.addEventListener('submit',async e=>{e.preventDefault();syncMrarAnimationSettings();const msg=document.getElementById('mrarAnimationFormError');msg.textContent='در حال ذخیره...';try{const r=await fetch('/admin/api/mr-ar-animations',{method:'POST',body:new FormData(e.target)});const d=await r.json();if(!r.ok)throw new Error(d.error||'ذخیره انجام نشد');e.target.hidden=true;loadMrarAnimationCards();}catch(err){msg.textContent=err.message;}});
+window.addEventListener('message',e=>{if(e.data?.type==='edit-mrar-animations')openMrarAnimationManager();});
+</script>
+
+{% endblock %}
