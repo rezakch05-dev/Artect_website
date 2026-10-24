@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Artect Annotation Studio — v1.2</title>
+<style>
+:root{color-scheme:dark;--bg:#101319;--panel:#191e27;--line:#303948;--text:#edf2f8;--muted:#a6b2c2;--accent:#65d4c4;--danger:#ff7777}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 Tahoma,Arial,sans-serif}
+header{min-height:66px;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--line);background:#141922;gap:12px}
+.brand{font-size:16px;font-weight:bold}.brand span{color:var(--accent)}.sub{color:var(--muted);font-size:12px}
+button,.filelabel{border:1px solid var(--line);background:#202734;color:var(--text);padding:8px 11px;border-radius:8px;cursor:pointer;font:inherit;white-space:nowrap}
+button:hover,.filelabel:hover{border-color:var(--accent)}button.primary{background:var(--accent);color:#10201e;border-color:var(--accent);font-weight:bold}button.walk-on{background:#264b48;border-color:var(--accent);color:#c9fff4}button.danger{color:var(--danger)}button:disabled{opacity:.4;cursor:not-allowed}
+input,textarea,select{width:100%;background:#11161e;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:9px;font:inherit}textarea{resize:vertical;min-height:65px}select{cursor:pointer}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 350px;height:calc(100vh - 66px);min-height:580px}.viewer{position:relative;min-width:0;background:#0c1016;overflow:hidden}#viewport{position:absolute;inset:0}canvas{display:block;width:100%;height:100%}
+.overlay{position:absolute;z-index:2;top:12px;left:12px;display:flex;gap:7px;flex-wrap:wrap;max-width:calc(100% - 24px)}.hint{position:absolute;bottom:12px;left:12px;right:12px;text-align:center;color:#e1e9f3;background:#121821df;border:1px solid #384354;border-radius:9px;padding:8px;pointer-events:none;font-size:12px}
+.badge{background:#121821dc;border:1px solid #3a4554;border-radius:8px;padding:7px 9px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.sidebar{background:var(--panel);border-right:1px solid var(--line);overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px}.section{border:1px solid var(--line);border-radius:11px;padding:12px;display:flex;flex-direction:column;gap:9px}.section h2{font-size:14px;margin:0}.section p{margin:0;color:var(--muted);font-size:12px}
+.row{display:flex;gap:7px}.row>*{flex:1;min-width:0}.field{display:flex;flex-direction:column;gap:4px}.field label{color:var(--muted);font-size:12px}
+#annotationList{display:flex;flex-direction:column;gap:6px}.ann{display:flex;align-items:center;gap:7px;border:1px solid var(--line);padding:7px;border-radius:8px;background:#141a23}.ann.active{border-color:var(--accent);background:#192b2b}.num{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#10201e;font-weight:bold;flex-shrink:0}.anntext{flex:1;min-width:0}.anntext strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.anntext small{color:var(--muted)}.ann button{padding:4px 7px}
+.status{font-size:12px;color:var(--muted);min-height:18px;overflow-wrap:anywhere}.status.error{color:var(--danger)}.status.ok{color:var(--accent)}#fileInput,#zipInput{display:none}.footnote{font-size:11px!important}
+@media(max-width:850px){.app{grid-template-columns:1fr;height:auto;min-height:calc(100vh - 66px)}.viewer{height:52vh;min-height:340px}.sidebar{border-right:0;border-top:1px solid var(--line)}.sub{display:none}header{padding:10px}.brand{font-size:14px}}
+</style>
+<!-- Import map is required because OrbitControls and GLTFLoader import the bare specifier "three". -->
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script>
+window.addEventListener('error', function(e) {
+  const el = document.getElementById('status');
+  if (el && /module|import|fetch|network|three|webgl/i.test(e.message || '')) {
+    el.textContent = 'خطای اجرای برنامه یا بارگذاری کتابخانه‌ها. اینترنت/CDN را بررسی کن؛ جزئیات در Console مرورگر (F12) است.';
+    el.className = 'status error';
+  }
+});
+window.addEventListener('unhandledrejection', function(e) {
+  const el = document.getElementById('status');
+  if (el) { el.textContent = 'عملیات ناموفق بود: ' + ((e.reason && e.reason.message) || e.reason || 'خطای نامشخص'); el.className = 'status error'; }
+});
+</script>
+</head>
+<body>
+<header>
+  <div><div class="brand">ARTECT <span>ANNOTATION STUDIO</span></div><div class="sub">نسخهٔ 1.3 · Walk-through کنترل‌های سفارشی</div></div>
+  <div class="row" style="flex:0 0 auto;align-items:center">
+    <label class="filelabel" for="fileInput">بارگذاری GLB</label><input id="fileInput" type="file" accept=".glb,model/gltf-binary">
+    <button id="loadZipBtn" disabled>ورود ZIP Annotation</button><input id="zipInput" type="file" accept=".zip,application/zip">
+    <button id="exportBtn" class="primary" disabled>خروجی ZIP</button>
+  </div>
+</header>
+<div class="app">
+  <main class="viewer">
+    <div id="viewport"></div>
+    <div class="overlay"><div class="badge" id="modelBadge">مدلی بارگذاری نشده</div><button id="selectModeBtn" disabled>انتخاب نقطه</button><button id="freeModeBtn" disabled>ناوبری آزاد</button><button id="walkModeBtn" disabled>Walk-through: خاموش</button><button id="walkAutoBtn" disabled title="بازگشت به روشن/خاموش‌شدن خودکار بر اساس Annotation فعال">حالت خودکار</button></div>
+    <div class="hint" id="viewerHint">یک فایل GLB بارگذاری کن؛ سپس نما را تنظیم کن و نقطهٔ Annotation را روی مدل انتخاب کن.</div>
+  </main>
+  <aside class="sidebar">
+    <section class="section"><h2>۱. مدل و نما</h2><p>ابتدا زاویهٔ دوربین را تنظیم کن، سپس حالت انتخاب نقطه را فعال و روی سطح مدل کلیک کن.</p><div class="row"><button id="fitBtn" disabled>تنظیم نما روی مدل</button><button id="resetBtn" disabled>بازنشانی دوربین</button></div><div class="row"><button id="prevBtn" disabled>نمای قبلی</button><button id="nextBtn" disabled>نمای بعدی</button></div><div class="status" id="status">آمادهٔ بارگذاری مدل · اتصال اینترنت برای کتابخانه‌های سه‌بعدی لازم است.</div></section>
+    <section class="section"><h2>۲. مشخصات Annotation</h2><div class="field"><label for="annTitle">عنوان</label><input id="annTitle" placeholder="مثلاً ورودی ساختمان"></div><div class="field"><label for="annDesc">توضیحات (اختیاری)</label><textarea id="annDesc" placeholder="توضیح کوتاه دربارهٔ این نقطه"></textarea></div><div class="field"><label>مختصات نقطه</label><div class="badge" id="pointStatus">هنوز نقطه‌ای انتخاب نشده</div></div><div class="field"><label for="pivotMode">مرکز چرخش پس از انتخاب این Annotation</label><select id="pivotMode"><option value="annotation">نقطهٔ انتخاب‌شده</option><option value="camera">خود دوربین (دید اول‌شخص)</option><option value="model">مرکز اصلی مدل</option></select><p class="footnote">«خود دوربین» یعنی چرخش نگاه از محل فعلی دوربین، بدون گردش دوربین به دور یک نقطهٔ ثابت.</p></div><div class="row"><button id="saveAnnBtn" class="primary" disabled>ذخیرهٔ Annotation</button><button id="cancelEditBtn" disabled>لغو ویرایش</button></div><p class="footnote">در حالت انتخاب نقطه روی سطح مدل کلیک کن؛ در ناوبری آزاد از ماوس برای چرخش و بزرگ‌نمایی استفاده کن. Walk-through با کلیدهای جهت‌نما حرکت می‌کند؛ Shift حرکت را سریع‌تر می‌کند.</p></section>
+    <section class="section"><h2>۳. فهرست تور</h2><div id="annotationList"><p>هنوز Annotation ثبت نشده است.</p></div><div class="row"><button id="deleteAllBtn" class="danger" disabled>حذف همه</button><button id="exportJsonBtn" disabled>دانلود JSON</button></div></section>
+    <section class="section"><h2>فرمت و اعتبارسنجی</h2><p>ZIP خروجی شامل <b>annotations.json</b> و <b>manifest.json</b> است. هنگام ورود، اثرانگشت SHA-256 فایل GLB بررسی می‌شود تا ZIP مربوط به مدل دیگری وارد نشود.</p><p class="footnote">برای ورود Annotation فقط ZIP پذیرفته می‌شود. ابتدا فایل GLB را بارگذاری کن؛ سپس ZIP متناظر با همان فایل را وارد کن.</p></section>
+  </aside>
+</div>
+<script type="module" src="./app.js"></script>
+</body></html>
